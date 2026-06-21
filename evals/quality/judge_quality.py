@@ -14,6 +14,7 @@ Prints a scorecard table and outputs RESULTS_JSON:<json> to stdout.
 Requires: GITHUB_TOKEN env var (used for GPT-4o via GitHub AI Models)
 """
 import os
+import sys
 import json
 import uuid
 import time
@@ -82,7 +83,13 @@ def _send(prompt: str) -> dict:
     }
     r = httpx.post(f"{AGENT_URL}/a2a", json=payload, timeout=TIMEOUT)
     r.raise_for_status()
-    result = r.json().get("result", {})
+    body = r.json()
+    # The agent returns HTTP 200 with a JSON-RPC error body when the LLM call fails
+    # (e.g. GitHub Models rate limit). Surface that as a real failure, not an empty score.
+    if body.get("error"):
+        msg = body["error"].get("message", body["error"]) if isinstance(body["error"], dict) else body["error"]
+        raise RuntimeError(f"agent JSON-RPC error: {msg}")
+    result = body.get("result", {})
     text = result.get("artifacts", [{}])[0].get("parts", [{}])[0].get("text", "")
     tools = [e["tool"] for e in result.get("metadata", {}).get("tool_events", [])]
     return {"text": text, "tools": tools}
@@ -113,20 +120,28 @@ def _judge(prompt: str, response: str, tools: list[str], expected_tools: list[st
                 "reasoning": f"Judge call failed: {e}"}
 
 
+def _is_rate_limit(text: str) -> bool:
+    t = (text or "").lower()
+    return "429" in t or "rate limit" in t or "ratelimitreached" in t
+
+
 if __name__ == "__main__":
     console.rule("[bold cyan]LLM Quality Evals[/bold cyan]")
     if not GITHUB_TOKEN:
-        console.print("[yellow]WARNING: GITHUB_TOKEN not set — scores will be 0[/yellow]")
+        console.print("[red]ERROR: GITHUB_TOKEN not set — the judge cannot run. This is a FAILURE, not a pass.[/red]")
 
     scores = []
+    rate_limited = False
     for tc in TEST_CASES:
         console.print(f"  → {tc['prompt'][:50]}...")
         try:
             agent_out = _send(tc["prompt"])
         except Exception as e:
+            rate_limited = rate_limited or _is_rate_limit(str(e))
             console.print(f"[red]Agent call failed: {e}[/red]")
             scores.append({"prompt": tc["prompt"], "helpfulness": 0, "accuracy": 0,
-                           "protocol_awareness": 0, "tone": 0, "avg": 0, "reasoning": str(e)})
+                           "protocol_awareness": 0, "tone": 0, "avg": 0,
+                           "error": True, "reasoning": str(e)})
             continue
 
         judgment = _judge(tc["prompt"], agent_out["text"], agent_out["tools"], tc["expected_tools"])
@@ -134,7 +149,11 @@ if __name__ == "__main__":
             (judgment.get("helpfulness", 0) + judgment.get("accuracy", 0) +
              judgment.get("protocol_awareness", 0) + judgment.get("tone", 0)) / 4, 2
         )
-        scores.append({"prompt": tc["prompt"], **judgment, "avg": avg})
+        # A real judgment is on a 1-5 scale, so avg==0 only happens on an error path
+        # (judge call failed / token missing). Treat that as a failed case, not a 0 score.
+        is_error = avg == 0
+        rate_limited = rate_limited or _is_rate_limit(judgment.get("reasoning", ""))
+        scores.append({"prompt": tc["prompt"], **judgment, "avg": avg, "error": is_error})
         time.sleep(0.5)  # avoid rate limiting
 
     # Table to stderr
@@ -156,7 +175,21 @@ if __name__ == "__main__":
         )
     console.print(table)
 
-    overall_avg = round(sum(s.get("avg", 0) for s in scores) / len(scores), 2) if scores else 0
-    console.print(f"\nOverall average score: [bold]{overall_avg}[/bold] / 5.0")
+    failed = [s for s in scores if s.get("error")]
+    graded = [s for s in scores if not s.get("error")]
+    overall_avg = round(sum(s["avg"] for s in graded) / len(graded), 2) if graded else 0
+    console.print(f"\nGraded {len(graded)}/{len(scores)} cases — overall average: [bold]{overall_avg}[/bold] / 5.0")
 
-    print(f"RESULTS_JSON:{json.dumps({'scores': scores, 'overall_avg': overall_avg})}")
+    if failed:
+        console.print(f"[red]{len(failed)} case(s) could not be graded — quality eval FAILED.[/red]")
+        if rate_limited:
+            console.print(
+                "[yellow]Cause looks like a GitHub Models rate limit (free tier: ~50 GPT-4o "
+                "requests/day, rolling 24h). Wait for the quota to reset, or point the agent/judge "
+                "at an OpenAI/Azure key, then re-run.[/yellow]"
+            )
+
+    print(f"RESULTS_JSON:{json.dumps({'scores': scores, 'overall_avg': overall_avg, 'failed': len(failed), 'graded': len(graded), 'rate_limited': rate_limited})}")
+
+    # Exit non-zero if any case failed so the runner reports FAIL honestly.
+    sys.exit(1 if (failed or not scores) else 0)

@@ -97,7 +97,12 @@ def _run_quality_suite() -> dict:
         data = json.loads(result.stdout.split("RESULTS_JSON:")[-1].strip())
     except Exception:
         data = {"error": "Could not parse quality output", "raw": result.stdout[-500:]}
-    return {"module": "quality.judge_quality", "duration_s": duration, "results": data, "exit_code": result.returncode}
+    exit_code = result.returncode
+    # Belt-and-suspenders: a parse error or any ungraded case is a failure even if the
+    # subprocess somehow exited 0. A quality run that scored 0 across the board is NOT a pass.
+    if exit_code == 0 and ("error" in data or data.get("failed", 0) or not data.get("graded", 0)):
+        exit_code = 1
+    return {"module": "quality.judge_quality", "duration_s": duration, "results": data, "exit_code": exit_code}
 
 
 @app.command()
@@ -206,6 +211,13 @@ def _print_quality_results(r: dict):
             f"[{color}]{avg}[/{color}]",
         )
     console.print(table)
+    if results.get("failed"):
+        console.print(f"[red]{results['failed']} case(s) could not be graded — FAIL.[/red]")
+    if results.get("rate_limited"):
+        console.print(
+            "[yellow]Looks rate-limited: GitHub Models free tier is ~50 GPT-4o requests/day "
+            "(rolling 24h). Wait for reset or use an OpenAI/Azure key, then re-run.[/yellow]"
+        )
 
 
 if __name__ == "__main__":

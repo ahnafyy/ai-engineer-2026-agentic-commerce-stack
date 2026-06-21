@@ -543,35 +543,57 @@ POST /checkout/sessions/{id}/complete  # finalize</code></pre>
                 </section>
 
                 <!-- ── 9. Evals ───────────────────────────────────────────────────────────── -->
-                <section style="display:flex; flex-direction:column; height:100%;">
+                <section
+                    style="display:flex; flex-direction:column; height:100%;">
                     <h2 style="flex-shrink:0;">How do you test this?</h2>
-                    <div class="eval-grid" style="flex:1; margin-top:12px; grid-template-rows:1fr 1fr; align-content:stretch; grid-auto-rows:1fr; height:580px;">
-                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                    <div class="eval-grid"
+                        style="flex:1; margin-top:12px; grid-template-rows:1fr 1fr; align-content:stretch; grid-auto-rows:1fr; height:580px;">
+                        <div class="eval-card"
+                            style="display:flex; flex-direction:column;">
                             <h4>Behavior evals</h4>
-                            <p style="color:var(--text-muted); flex-shrink:0;">Send canned prompts → assert correct MCP tools were called, checkout reaches COMPLETED state.</p>
-                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-python">def test_bestsellers_tool_called():
+                            <p
+                                style="color:var(--text-muted); flex-shrink:0;">Send
+                                canned prompts → assert correct MCP tools were
+                                called, checkout reaches COMPLETED state.</p>
+                            <pre
+                                style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-python">def test_bestsellers_tool_called():
     resp = send("what are your bestsellers?")
     assert "get_bestsellers" in tool_names(resp)</code></pre>
                         </div>
-                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                        <div class="eval-card"
+                            style="display:flex; flex-direction:column;">
                             <h4>Protocol compliance</h4>
-                            <p style="color:var(--text-muted); flex-shrink:0;">Validate MCP /tools schema, A2A JSON-RPC 2.0 structure, UCP checkout fields, ACP feed spec.</p>
-                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-python">def test_ucp_native_commerce():
+                            <p
+                                style="color:var(--text-muted); flex-shrink:0;">Validate
+                                MCP /tools schema, A2A JSON-RPC 2.0 structure,
+                                UCP checkout fields, ACP feed spec.</p>
+                            <pre
+                                style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-python">def test_ucp_native_commerce():
     feed = GET("/feed/ucp").json()
     for p in feed["products"]:
         assert "native_commerce" in p</code></pre>
                         </div>
-                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                        <div class="eval-card"
+                            style="display:flex; flex-direction:column;">
                             <h4>Latency benchmarks</h4>
-                            <p style="color:var(--text-muted); flex-shrink:0;">P50/P95/P99 per MCP tool + full A2A round-trip. 10 runs each. Output a rich table.</p>
-                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-bash">Tool              P50    P95    P99
+                            <p
+                                style="color:var(--text-muted); flex-shrink:0;">P50/P95/P99
+                                per MCP tool + full A2A round-trip. 10 runs
+                                each. Output a rich table.</p>
+                            <pre
+                                style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-bash">Tool              P50    P95    P99
 mcp:product_search  42ms  110ms  180ms
 a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
                         </div>
-                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                        <div class="eval-card"
+                            style="display:flex; flex-direction:column;">
                             <h4>LLM quality judge</h4>
-                            <p style="color:var(--text-muted); flex-shrink:0;">GPT-4o scores agent responses: helpfulness, accuracy, protocol_awareness, tone (1–5 each).</p>
-                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-bash">Prompt              Help  Acc  Proto  Tone  Avg
+                            <p
+                                style="color:var(--text-muted); flex-shrink:0;">GPT-4o
+                                scores agent responses: helpfulness, accuracy,
+                                protocol_awareness, tone (1–5 each).</p>
+                            <pre
+                                style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-bash">Prompt              Help  Acc  Proto  Tone  Avg
 "show me cookies"     5    5    5      4    4.75
 "apply MEOW20"        5    4    5      5    4.75</code></pre>
                         </div>

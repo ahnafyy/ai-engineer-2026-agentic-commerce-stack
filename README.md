@@ -24,6 +24,23 @@ docker-compose up --build
 
 **`GITHUB_TOKEN`** — GitHub PAT with `read:packages` scope, used to call GPT-4o via GitHub AI Models.
 
+### Run without Docker
+
+No Docker? Use the launcher — it creates a `.venv`, installs deps, and starts catalog-sync, the MCP server, the merchant agent, and the React dev server, all wired to `localhost`:
+
+```bash
+cp .env.example .env        # add your GITHUB_TOKEN
+./scripts/app-start.sh      # Ctrl+C stops everything
+```
+
+## Documentation
+
+Deep dives live in [`docs/`](docs/README.md):
+
+- [Architecture](docs/architecture.md) — services, ports, env vars, caching, and the lifecycle of one chat turn
+- [Protocol stack](docs/protocols.md) — MCP, A2A, ACP, UCP, AP2 explained, with where each lives and example payloads
+- [Evaluation guide](docs/evals.md) — running the four suites, reading the output, and the GitHub Models rate-limit caveat
+
 ## Demo Flow
 
 1. Open http://localhost:3000
@@ -71,6 +88,8 @@ docker-compose run --rm evals python run_evals.py --suite quality
 | **compliance** | Do MCP /tools, A2A JSON-RPC, UCP checkout, and ACP feed match their specs? |
 | **latency** | P50/P95/P99 per MCP tool + A2A round-trip |
 | **quality** | GPT-4o judge scores: helpfulness, accuracy, protocol_awareness, tone (1–5) |
+
+> **Heads up — rate limits.** The agent and the quality judge call GPT-4o via GitHub Models, whose free tier allows ~50 requests/day (rolling 24h). A full `--suite all` run plus live demoing can exhaust it; when that happens the LLM-dependent suites fail with a `429`. See [docs/evals.md](docs/evals.md#rate-limits) for details and how to run off the cap.
 
 ## Repo Structure
 

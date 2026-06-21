@@ -31,7 +31,7 @@ if [[ ! -f "$VENV/bin/python" ]]; then
 fi
 
 log "Installing Python dependencies..."
-"$VENV/bin/pip" install -q fastapi "uvicorn[standard]" httpx "openai>=1.30.0" || true
+"$VENV/bin/pip" install -q fastapi "uvicorn[standard]" httpx "openai>=1.30.0" "apscheduler>=3.10.0" "websockets>=12.0" || true
 ok "Python deps ready"
 
 # ── Cleanup on exit ───────────────────────────────────────────────────────────
@@ -45,10 +45,18 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# ── Start MCP server (port 8001) ──────────────────────────────────────────────
+# ── Start catalog sync (port 8002) ───────────────────────────────
+log "Starting catalog sync on :8002..."
+cd "$ROOT/demo/catalog-sync"
+  "$VENV/bin/uvicorn" main:app --port 8002 --reload --log-level warning &
+PIDS+=($!)
+ok "Catalog sync PID ${PIDS[-1]}"
+
+# ── Start MCP server (port 8001) ───────────────────────────────────
 log "Starting MCP server on :8001..."
 cd "$ROOT/demo/mcp-server"
 MCP_SERVER_URL=http://localhost:8001 \
+CATALOG_SYNC_URL=http://localhost:8002 \
   "$VENV/bin/uvicorn" main:app --port 8001 --reload --log-level warning &
 PIDS+=($!)
 ok "MCP server PID ${PIDS[-1]}"
@@ -66,12 +74,14 @@ ok "Merchant agent PID ${PIDS[-1]}"
 # ── Wait for backends ─────────────────────────────────────────────────────────
 log "Waiting for backends to be ready..."
 for i in {1..20}; do
+  catalog_up=$(curl -sf http://localhost:8002/status > /dev/null 2>&1 && echo "yes" || echo "no")
   mcp_up=$(curl -sf http://localhost:8001/ > /dev/null 2>&1 && echo "yes" || echo "no")
   agent_up=$(curl -sf http://localhost:10999/.well-known/agent-card.json > /dev/null 2>&1 && echo "yes" || echo "no")
-  [[ "$mcp_up" == "yes" && "$agent_up" == "yes" ]] && break
+  [[ "$catalog_up" == "yes" && "$mcp_up" == "yes" && "$agent_up" == "yes" ]] && break
   sleep 0.5
 done
 
+if [[ "$catalog_up" == "yes" ]]; then ok "Catalog sync → http://localhost:8002"; else err "Catalog sync failed to start"; fi
 if [[ "$mcp_up" == "yes" ]]; then ok "MCP server  → http://localhost:8001"; else err "MCP server failed to start"; fi
 if [[ "$agent_up" == "yes" ]]; then ok "Agent       → http://localhost:10999"; else err "Merchant agent failed to start"; fi
 
@@ -95,7 +105,8 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo -e "  Chat UI      →  ${CYAN}http://localhost:3000${NC}"
 echo -e "  Agent        →  ${CYAN}http://localhost:10999${NC}"
 echo -e "  MCP server   →  ${CYAN}http://localhost:8001${NC}"
-echo -e "  Product feed →  ${CYAN}http://localhost:8001/feed${NC}"
+echo -e "  Catalog sync →  ${CYAN}http://localhost:8002${NC}"
+echo -e "  Product feed →  ${CYAN}http://localhost:8002/feed/acp${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "  Press ${YELLOW}Ctrl+C${NC} to stop all services"
 echo ""

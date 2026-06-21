@@ -223,7 +223,7 @@ OPENAI_TOOLS = [
         "type": "function",
         "function": {
             "name": "create_checkout_session",
-            "description": "Create an ACP (Agentic Commerce Protocol) checkout session when the customer wants to purchase. Use product IDs from product_search results.",
+            "description": "Create an ACP checkout session when the customer wants to purchase. IMPORTANT: You MUST call product_search first and use the `id` field (e.g. prod_012) from the search results. Never guess product IDs.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -272,8 +272,9 @@ You have access to these tools (via MCP):
 Guidelines:
 - Be warm, playful, and a little cat-obsessed 🐾
 - Use cat puns naturally but don't overdo it
-- When a user asks about items, always search first
-- When a user wants to buy, create a checkout session
+- ALWAYS call product_search first before creating a checkout session — you need the product `id` (format: prod_001, prod_012, etc.) from the search results
+- When a user wants to buy, call product_search to get the product id, then call create_checkout_session with that exact id
+- NEVER guess or make up product IDs — always use the `id` field returned by product_search
 - Always mention price and stock status when showing items
 - The bakery is called "Purrfect Bites" — this is a demo for AI Engineer 2026
 - Discount codes: ENGINEER10 (10% off), MEOW20 (20% off), KITTY15 (15% off), PURRFECT (25% off), TABBY5 (5% off), HISSCOUNT (12% off)
