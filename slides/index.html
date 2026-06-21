@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Agentic Commerce Stack — AI Engineer 2026</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
-  <link rel="stylesheet" href="theme/purple.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
-  <style>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>The Agentic Commerce Stack — AI Engineer 2026</title>
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+        <link rel="stylesheet" href="theme/purple.css" />
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+        <style>
     .protocol-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 20px; }
     .protocol-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 12px; text-align: center; font-size: 0.55em; }
     .protocol-card .label { font-size: 1.3em; font-weight: 700; margin-bottom: 6px; }
@@ -23,8 +25,10 @@
     .seq-arrow { color: var(--cyan); font-size: 1.2em; }
     .seq-label { color: var(--text-muted); flex: 1; }
     .eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
-    .eval-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-size: 0.5em; }
-    .eval-card h4 { margin: 0 0 6px; color: var(--cyan); font-size: 1.15em; }
+    .eval-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 0.52em; }
+    .eval-card h4 { margin: 0 0 8px; color: var(--cyan); font-size: 1.2em; }
+    .eval-card pre { margin: 0; }
+    .eval-card p { margin: 0 0 8px; line-height: 1.5; }
     .feed-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
     .feed-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-size: 0.46em; }
     .feed-card h4 { margin: 0 0 8px; font-size: 1.2em; }
@@ -38,107 +42,166 @@
     .step-list li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.52em; display: flex; align-items: flex-start; gap: 10px; }
     .step-num { color: var(--cyan); font-family: var(--font-mono); font-weight: 700; min-width: 24px; }
   </style>
-</head>
-<body>
-<div class="reveal">
-<div class="slides">
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
 
-<!-- ── 0. Title ───────────────────────────────────────────────────────────── -->
-<section>
-  <div style="text-align:center; padding-top: 20px;">
-    <p style="font-size:0.55em; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px;">
-      World AI Engineer Fair 2026 · July 2 · 2:25pm
-    </p>
-    <h1 style="font-size:2.0em; line-height:1.15; margin-bottom:16px;">
-      The Agentic<br/>Commerce Stack
-    </h1>
-    <p style="font-size:0.6em; color:var(--cyan); margin-bottom:32px;">
-      MCP · A2A · ACP · UCP · AP2 — and how they compose
-    </p>
-    <div style="display:flex; justify-content:center; gap:24px; font-size:0.5em; color:var(--text-muted);">
-      <span>Ahnaf Prio</span>
-      <span style="color:var(--border)">|</span>
-      <span>Senior Engineering Manager · Best Buy</span>
-      <span style="color:var(--border)">|</span>
-      <a href="https://linkedin.com/in/ahnafy" style="color:var(--cyan)">linkedin.com/in/ahnafy</a>
-    </div>
-    <p style="font-size:0.42em; color:var(--text-muted); margin-top:24px;">
-      github.com/ahnafyy/ai-engineer-2026-agentic-commerce-stack
-    </p>
-  </div>
-  <aside class="notes">
-    [0:00] Open cold. Let the title land. This is 20 minutes. I will not waste a second.
-    The question I am answering: your agents can search, cart, and checkout — but what is the actual protocol layer making that possible?
-  </aside>
-</section>
+                <!-- ── 0. Title ───────────────────────────────────────────────────────────── -->
+                <section>
+                    <div style="text-align:center; padding-top: 20px;">
+                        <p
+                            style="font-size:0.55em; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px;">
+                            World AI Engineer Fair 2026 · July 2 · 2:25pm
+                        </p>
+                        <h1
+                            style="font-size:2.0em; line-height:1.15; margin-bottom:16px;">
+                            The Agentic<br />Commerce Stack
+                        </h1>
+                        <p
+                            style="font-size:0.6em; color:var(--cyan); margin-bottom:32px;">
+                            MCP · A2A · ACP · UCP · AP2 — and how they compose
+                        </p>
+                        <div
+                            style="display:flex; justify-content:center; gap:24px; font-size:0.5em; color:var(--text-muted);">
+                            <span>Ahnaf Prio</span>
+                            <span style="color:var(--border)">|</span>
+                            <span>Senior Engineering Manager · Best Buy</span>
+                            <span style="color:var(--border)">|</span>
+                            <a href="https://linkedin.com/in/ahnafy"
+                                style="color:var(--cyan)">linkedin.com/in/ahnafy</a>
+                        </div>
+                        <p
+                            style="font-size:0.42em; color:var(--text-muted); margin-top:24px;">
+                            github.com/ahnafyy/ai-engineer-2026-agentic-commerce-stack
+                        </p>
+                    </div>
+                    <aside class="notes">
+                        [0:00] Open cold. Let the title land. This is 20
+                        minutes. I will not waste a second.
+                        The question I am answering: your agents can search,
+                        cart, and checkout — but what is the actual protocol
+                        layer making that possible?
+                    </aside>
+                </section>
 
-<!-- ── 1. What Already Works ──────────────────────────────────────────────── -->
-<section>
-  <h2>Agents are already shopping</h2>
-  <ul class="step-list" style="margin-top:20px;">
-    <li><span class="step-num">01</span> User asks ChatGPT/Gemini to "find me cat cookies under $6 and order 2"</li>
-    <li><span class="step-num">02</span> AI surfaces the product from a pre-indexed <strong>product feed</strong></li>
-    <li><span class="step-num">03</span> Agent calls merchant's <strong>checkout API</strong> — no browser, no clicks</li>
-    <li><span class="step-num">04</span> Payment flows via a scoped <strong>payment mandate</strong></li>
-    <li><span class="step-num">05</span> Order confirmed. Human never touched a cart.</li>
-  </ul>
-  <p style="margin-top:24px; font-size:0.52em; color:var(--text-muted);">
-    This is live today on Google AI Mode (UCP) and rolling out on ChatGPT (ACP).
-    <br/>The engineering question: <span style="color:var(--cyan)">how does it actually work?</span>
-  </p>
-  <aside class="notes">
-    [1:00] Not a future thing. Google AI Mode already does this with UCP. ChatGPT is rolling it out with ACP. I'm going to map the actual stack.
-  </aside>
-</section>
+                <!-- ── 1. What Already Works ──────────────────────────────────────────────── -->
+                <section>
+                    <h2>Agents are already shopping</h2>
+                    <ul class="step-list" style="margin-top:20px;">
+                        <li><span class="step-num">01</span> User asks
+                            ChatGPT/Gemini to
+                            "find me cat cookies under $6 and order 2"</li>
+                        <li><span class="step-num">02</span> AI surfaces the
+                            product from a pre-indexed <strong>product
+                                feed</strong></li>
+                        <li><span class="step-num">03</span> Agent calls
+                            merchant's <strong>checkout API</strong> — no
+                            browser, no clicks</li>
+                        <li><span class="step-num">04</span> Payment flows via a
+                            scoped <strong>payment mandate</strong></li>
+                        <li><span class="step-num">05</span> Order confirmed.
+                            Human never touched a cart.</li>
+                    </ul>
+                    <p
+                        style="margin-top:24px; font-size:0.52em; color:var(--text-muted);">
+                        This is live today on Google AI Mode (UCP) and rolling
+                        out on ChatGPT (ACP).
+                        <br />The engineering question: <span
+                            style="color:var(--cyan)">how does it actually
+                            work?</span>
+                    </p>
+                    <aside class="notes">
+                        [1:00] Not a future thing. Google AI Mode already does
+                        this with UCP. ChatGPT is rolling it out with ACP. I'm
+                        going to map the actual stack.
+                    </aside>
+                </section>
 
-<!-- ── 2. The Protocol Map ────────────────────────────────────────────────── -->
-<section>
-  <h2>5 protocols, one stack</h2>
-  <div class="protocol-grid">
-    <div class="protocol-card">
-      <div class="label" style="color:var(--green)">MCP</div>
-      <div style="color:var(--text-muted); margin-bottom:6px;">Model Context Protocol</div>
-      <div>Agent ↔ tool server</div>
-      <div style="margin-top:6px; color:var(--green)">Anthropic · open</div>
-    </div>
-    <div class="protocol-card">
-      <div class="label" style="color:var(--cyan)">A2A</div>
-      <div style="color:var(--text-muted); margin-bottom:6px;">Agent2Agent</div>
-      <div>Agent ↔ agent<br/>JSON-RPC 2.0</div>
-      <div style="margin-top:6px; color:var(--cyan)">Google · open</div>
-    </div>
-    <div class="protocol-card">
-      <div class="label" style="color:var(--pink)">ACP</div>
-      <div style="color:var(--text-muted); margin-bottom:6px;">Agentic Commerce Protocol</div>
-      <div>Discovery + checkout</div>
-      <div style="margin-top:6px; color:var(--pink)">OpenAI + Stripe · closed</div>
-    </div>
-    <div class="protocol-card">
-      <div class="label" style="color:var(--violet-bright)">UCP</div>
-      <div style="color:var(--text-muted); margin-bottom:6px;">Universal Commerce Protocol</div>
-      <div>Discovery + checkout</div>
-      <div style="margin-top:6px; color:var(--violet-bright)">Google · open · ucp.dev</div>
-    </div>
-    <div class="protocol-card">
-      <div class="label" style="color:var(--gold)">AP2</div>
-      <div style="color:var(--text-muted); margin-bottom:6px;">Agent Payment Protocol</div>
-      <div>Scoped payment mandate</div>
-      <div style="margin-top:6px; color:var(--gold)">emerging</div>
-    </div>
-  </div>
-  <p style="font-size:0.46em; color:var(--text-muted); margin-top:16px;">ACP and UCP are both trying to own the same thing — how agents discover and buy from merchants. One is closed and backed by ChatGPT reach. One is open and already live on Google AI Mode.</p>
-  <aside class="notes">
-    [2:00] These 5 protocols compose into a complete stack. MCP handles tool access, A2A handles agent coordination, ACP/UCP handle commerce lifecycle, AP2 handles payment. I'll go deep on each.
-  </aside>
-</section>
+                <!-- ── 2. The Protocol Map ────────────────────────────────────────────────── -->
+                <section>
+                    <h2>5 protocols, one stack</h2>
+                    <div class="protocol-grid">
+                        <div class="protocol-card">
+                            <div class="label"
+                                style="color:var(--green)">MCP</div>
+                            <div
+                                style="color:var(--text-muted); margin-bottom:6px;">Model
+                                Context Protocol</div>
+                            <div>Agent ↔ tool server</div>
+                            <div
+                                style="margin-top:6px; color:var(--green)">Anthropic
+                                · open</div>
+                        </div>
+                        <div class="protocol-card">
+                            <div class="label"
+                                style="color:var(--cyan)">A2A</div>
+                            <div
+                                style="color:var(--text-muted); margin-bottom:6px;">Agent2Agent</div>
+                            <div>Agent ↔ agent<br />JSON-RPC 2.0</div>
+                            <div
+                                style="margin-top:6px; color:var(--cyan)">Google
+                                · open</div>
+                        </div>
+                        <div class="protocol-card">
+                            <div class="label"
+                                style="color:var(--pink)">ACP</div>
+                            <div
+                                style="color:var(--text-muted); margin-bottom:6px;">Agentic
+                                Commerce Protocol</div>
+                            <div>Discovery + checkout</div>
+                            <div
+                                style="margin-top:6px; color:var(--pink)">OpenAI
+                                + Stripe · closed</div>
+                        </div>
+                        <div class="protocol-card">
+                            <div class="label"
+                                style="color:var(--violet-bright)">UCP</div>
+                            <div
+                                style="color:var(--text-muted); margin-bottom:6px;">Universal
+                                Commerce Protocol</div>
+                            <div>Discovery + checkout</div>
+                            <div
+                                style="margin-top:6px; color:var(--violet-bright)">Google
+                                · open · ucp.dev</div>
+                        </div>
+                        <div class="protocol-card">
+                            <div class="label"
+                                style="color:var(--gold)">AP2</div>
+                            <div
+                                style="color:var(--text-muted); margin-bottom:6px;">Agent
+                                Payment Protocol</div>
+                            <div>Scoped payment mandate</div>
+                            <div
+                                style="margin-top:6px; color:var(--gold)">emerging</div>
+                        </div>
+                    </div>
+                    <p
+                        style="font-size:0.46em; color:var(--text-muted); margin-top:16px;">ACP
+                        and UCP are both trying to own the same thing — how
+                        agents discover and buy from merchants. One is closed
+                        and backed by ChatGPT reach. One is open and already
+                        live on Google AI Mode.</p>
+                    <aside class="notes">
+                        [2:00] These 5 protocols compose into a complete stack.
+                        MCP handles tool access, A2A handles agent coordination,
+                        ACP/UCP handle commerce lifecycle, AP2 handles payment.
+                        I'll go deep on each.
+                    </aside>
+                </section>
 
-<!-- ── 3. MCP Deep Dive ───────────────────────────────────────────────────── -->
-<section>
-  <h2>MCP <span class="tag tag-mcp">tool access</span></h2>
-  <div class="two-col" style="margin-top:16px;">
-    <div>
-      <p style="font-size:0.5em; color:var(--text-muted);">Agent discovers tools from a server, calls them with typed inputs, gets structured outputs. Stateless RPC.</p>
-      <pre style="font-size:0.38em; margin-top:12px;"><code class="language-json">// GET /tools — tool discovery
+                <!-- ── 3. MCP Deep Dive ───────────────────────────────────────────────────── -->
+                <section>
+                    <h2>MCP <span class="tag tag-mcp">tool access</span></h2>
+                    <div class="two-col" style="margin-top:16px;">
+                        <div>
+                            <p
+                                style="font-size:0.5em; color:var(--text-muted);">Agent
+                                discovers tools from a server, calls them with
+                                typed inputs, gets structured outputs. Stateless
+                                RPC.</p>
+                            <pre
+                                style="font-size:0.38em; margin-top:12px;"><code class="language-json">// GET /tools — tool discovery
 {
   "tools": [{
     "name": "product_search",
@@ -153,9 +216,10 @@
     }
   }]
 }</code></pre>
-    </div>
-    <div>
-      <pre style="font-size:0.38em;"><code class="language-json">// POST /tools/call — execution
+                        </div>
+                        <div>
+                            <pre
+                                style="font-size:0.38em;"><code class="language-json">// POST /tools/call — execution
 {
   "name": "product_search",
   "input": {
@@ -175,29 +239,41 @@
       "in_stock": true }
   ]
 }</code></pre>
-    </div>
-  </div>
-  <aside class="notes">
-    [4:00] MCP is the workhorse. It's how any LLM-powered agent accesses external capabilities in a standardized way. The tool schema is what gets passed to the LLM as its available functions.
-    In our demo: 12 tools — product_search, inventory_check, apply_discount, checkout tools.
-  </aside>
-</section>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [4:00] MCP is the workhorse. It's how any LLM-powered
+                        agent accesses external capabilities in a standardized
+                        way. The tool schema is what gets passed to the LLM as
+                        its available functions.
+                        In our demo: 12 tools — product_search, inventory_check,
+                        apply_discount, checkout tools.
+                    </aside>
+                </section>
 
-<!-- ── 4. A2A Deep Dive ───────────────────────────────────────────────────── -->
-<section>
-  <h2>A2A <span class="tag tag-a2a">agent coordination</span></h2>
-  <div class="two-col" style="margin-top:16px;">
-    <div>
-      <p style="font-size:0.5em; color:var(--text-muted);">Agent-to-agent JSON-RPC 2.0. Discovery via <code>/.well-known/agent-card.json</code>. Tasks have state: submitted → working → completed.</p>
-      <ul style="font-size:0.48em; margin-top:10px; color:var(--text-muted);">
-        <li>Agent card: capabilities, skills, extensions</li>
-        <li>Task lifecycle with state history</li>
-        <li>Extension slots → UCP hangs here</li>
-        <li>Streaming support via SSE</li>
-      </ul>
-    </div>
-    <div>
-      <pre style="font-size:0.38em;"><code class="language-json">// POST /a2a
+                <!-- ── 4. A2A Deep Dive ───────────────────────────────────────────────────── -->
+                <section>
+                    <h2>A2A <span class="tag tag-a2a">agent
+                            coordination</span></h2>
+                    <div class="two-col" style="margin-top:16px;">
+                        <div>
+                            <p
+                                style="font-size:0.5em; color:var(--text-muted);">Agent-to-agent
+                                JSON-RPC 2.0. Discovery via
+                                <code>/.well-known/agent-card.json</code>. Tasks
+                                have state: submitted → working → completed.</p>
+                            <ul
+                                style="font-size:0.48em; margin-top:10px; color:var(--text-muted);">
+                                <li>Agent card: capabilities, skills,
+                                    extensions</li>
+                                <li>Task lifecycle with state history</li>
+                                <li>Extension slots → UCP hangs here</li>
+                                <li>Streaming support via SSE</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <pre
+                                style="font-size:0.38em;"><code class="language-json">// POST /a2a
 {
   "jsonrpc": "2.0",
   "method": "message/send",
@@ -217,23 +293,33 @@
   "uri": "dev.ucp.shopping.checkout",
   "required": true
 }]</code></pre>
-    </div>
-  </div>
-  <aside class="notes">
-    [6:00] A2A is how the orchestrating agent talks to a merchant agent. The agent card is key — it tells the caller what the agent can do before any message is sent. UCP advertises itself as an A2A extension.
-  </aside>
-</section>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [6:00] A2A is how the orchestrating agent talks to a
+                        merchant agent. The agent card is key — it tells the
+                        caller what the agent can do before any message is sent.
+                        UCP advertises itself as an A2A extension.
+                    </aside>
+                </section>
 
-<!-- ── 5. The Feed Problem ────────────────────────────────────────────────── -->
-<section>
-  <h2>The publisher side: 3 competing feeds</h2>
-  <p style="font-size:0.52em; color:var(--text-muted); margin-bottom:16px;">
-    Both ACP and UCP are <strong style="color:var(--cyan)">feed-first</strong>. Agents don't query your catalog live — they search a pre-indexed feed submitted by the merchant. Three surfaces, three formats.
-  </p>
-  <div class="feed-grid">
-    <div class="feed-card">
-      <h4 style="color:var(--pink)">ACP <span style="color:var(--text-muted); font-size:0.8em;">OpenAI</span></h4>
-      <pre style="font-size:0.9em; margin:0;"><code class="language-json">{
+                <!-- ── 5. The Feed Problem ────────────────────────────────────────────────── -->
+                <section>
+                    <h2>The publisher side</h2>
+                    <p
+                        style="font-size:0.52em; color:var(--text-muted); margin-bottom:16px;">
+                        Both ACP and UCP are <strong
+                            style="color:var(--cyan)">feed-first</strong>.
+                        Agents don't query your catalog live — they search a
+                        pre-indexed feed submitted by the merchant. Three
+                        surfaces, three formats.
+                    </p>
+                    <div class="feed-grid">
+                        <div class="feed-card">
+                            <h4 style="color:var(--pink)">ACP <span
+                                    style="color:var(--text-muted); font-size:0.8em;">OpenAI</span></h4>
+                            <pre
+                                style="font-size:0.9em; margin:0;"><code class="language-json">{
   "id": "prod_001",
   "title": "Paw Print Shortbread",
   "variants": [{
@@ -248,11 +334,16 @@
     }
   }]
 }</code></pre>
-      <p style="color:var(--text-muted); margin-top:6px;">Submit via file upload or API upsert to chatgpt.com/merchants</p>
-    </div>
-    <div class="feed-card">
-      <h4 style="color:var(--violet-bright)">UCP <span style="color:var(--text-muted); font-size:0.8em;">Google</span></h4>
-      <pre style="font-size:0.9em; margin:0;"><code class="language-json">{
+                            <p
+                                style="color:var(--text-muted); margin-top:6px;">Submit
+                                via file upload or API upsert to
+                                chatgpt.com/merchants</p>
+                        </div>
+                        <div class="feed-card">
+                            <h4 style="color:var(--violet-bright)">UCP <span
+                                    style="color:var(--text-muted); font-size:0.8em;">Google</span></h4>
+                            <pre
+                                style="font-size:0.9em; margin:0;"><code class="language-json">{
   "id": "prod_001",
   "title": "Paw Print Shortbread",
   "price": {
@@ -264,11 +355,14 @@
     "checkout_eligibility": true
   }
 }</code></pre>
-      <p style="color:var(--text-muted); margin-top:6px;">Supplemental feed to Google Merchant Center</p>
-    </div>
-    <div class="feed-card">
-      <h4 style="color:#E8A87C">Meta</h4>
-      <pre style="font-size:0.9em; margin:0;"><code class="language-json">{
+                            <p
+                                style="color:var(--text-muted); margin-top:6px;">Supplemental
+                                feed to Google Merchant Center</p>
+                        </div>
+                        <div class="feed-card">
+                            <h4 style="color:#E8A87C">Meta</h4>
+                            <pre
+                                style="font-size:0.9em; margin:0;"><code class="language-json">{
   "id": "prod_001",
   "title": "Paw Print Shortbread",
   "availability": "in stock",
@@ -277,60 +371,90 @@
   "brand": "Purrfect Bites",
   "category": "cookies"
 }</code></pre>
-      <p style="color:var(--text-muted); margin-top:6px;">Facebook catalog / Instagram Shopping surface</p>
-    </div>
-  </div>
-  <p style="font-size:0.44em; color:var(--text-muted); margin-top:14px;">
-    This repo's <code style="color:var(--cyan)">catalog-sync</code> service runs on a 60s schedule, reads from a single source JSON, and publishes all three. Engineering answer to protocol fragmentation.
-  </p>
-  <aside class="notes">
-    [8:00] This is the unglamorous engineering reality. Three surfaces, three feed specs. If you want your products on ChatGPT, Google AI Mode, and Instagram Shopping, you need three pipelines. The catalog-sync service in this repo does all three from one source of truth.
-    Live demo: hit /feed/acp, /feed/ucp, /feed/meta and show the diff.
-  </aside>
-</section>
+                            <p
+                                style="color:var(--text-muted); margin-top:6px;">Facebook
+                                catalog / Instagram Shopping surface</p>
+                        </div>
+                    </div>
+                    <p
+                        style="font-size:0.44em; color:var(--text-muted); margin-top:14px;">
+                        This repo's <code
+                            style="color:var(--cyan)">catalog-sync</code>
+                        service runs on a 60s schedule, reads from a single
+                        source JSON, and publishes all three. Engineering answer
+                        to protocol fragmentation.
+                    </p>
+                    <aside class="notes">
+                        [8:00] This is the unglamorous engineering reality.
+                        Three surfaces, three feed specs. If you want your
+                        products on ChatGPT, Google AI Mode, and Instagram
+                        Shopping, you need three pipelines. The catalog-sync
+                        service in this repo does all three from one source of
+                        truth.
+                        Live demo: hit /feed/acp, /feed/ucp, /feed/meta and show
+                        the diff.
+                    </aside>
+                </section>
 
-<!-- ── 6. ACP vs UCP Checkout ─────────────────────────────────────────────── -->
-<section>
-  <h2>ACP vs UCP — checkout mechanics</h2>
-  <div class="two-col" style="margin-top:16px;">
-    <div style="font-size:0.48em;">
-      <h3 style="color:var(--pink);">ACP — OpenAI + Stripe</h3>
-      <ul style="color:var(--text-muted); margin-top:8px; line-height:2;">
-        <li>Checkout hosted and managed by OpenAI</li>
-        <li>Merchant is NOT merchant of record</li>
-        <li>Payment via Stripe infrastructure</li>
-        <li>Spec: <code>spec/2026-04-17</code></li>
-        <li>Surfaces: ChatGPT only</li>
-        <li style="color:var(--pink);">Status: rolling out — still forming</li>
-      </ul>
-    </div>
-    <div style="font-size:0.48em;">
-      <h3 style="color:var(--violet-bright);">UCP — Google, open spec</h3>
-      <ul style="color:var(--text-muted); margin-top:8px; line-height:2;">
-        <li>3 REST endpoints on <em>your</em> server</li>
-        <li>Merchant stays merchant of record</li>
-        <li>Payment: Google Pay wallet credential, PSP is yours</li>
-        <li>Spec: ucp.dev (Apache 2.0)</li>
-        <li>Surfaces: Google AI Mode, Gemini</li>
-        <li style="color:var(--green);">Status: live today</li>
-      </ul>
-      <pre style="font-size:0.9em; margin-top:10px;"><code class="language-bash">POST /checkout/sessions        # create
+                <!-- ── 6. ACP vs UCP Checkout ─────────────────────────────────────────────── -->
+                <section>
+                    <h2>ACP vs UCP — checkout mechanics</h2>
+                    <div class="two-col" style="margin-top:16px;">
+                        <div style="font-size:0.48em;">
+                            <h3 style="color:var(--pink);">ACP — OpenAI +
+                                Stripe</h3>
+                            <ul
+                                style="color:var(--text-muted); margin-top:8px; line-height:2;">
+                                <li>Checkout hosted and managed by OpenAI</li>
+                                <li>Merchant is NOT merchant of record</li>
+                                <li>Payment via Stripe infrastructure</li>
+                                <li>Spec: <code>spec/2026-04-17</code></li>
+                                <li>Surfaces: ChatGPT only</li>
+                                <li style="color:var(--pink);">Status: rolling
+                                    out — still forming</li>
+                            </ul>
+                        </div>
+                        <div style="font-size:0.48em;">
+                            <h3 style="color:var(--violet-bright);">UCP —
+                                Google, open spec</h3>
+                            <ul
+                                style="color:var(--text-muted); margin-top:8px; line-height:2;">
+                                <li>3 REST endpoints on <em>your</em>
+                                    server</li>
+                                <li>Merchant stays merchant of record</li>
+                                <li>Payment: Google Pay wallet credential, PSP
+                                    is yours</li>
+                                <li>Spec: ucp.dev (Apache 2.0)</li>
+                                <li>Surfaces: Google AI Mode, Gemini</li>
+                                <li style="color:var(--green);">Status: live
+                                    today</li>
+                            </ul>
+                            <pre
+                                style="font-size:0.9em; margin-top:10px;"><code class="language-bash">POST /checkout/sessions        # create
 PATCH /checkout/sessions/{id}  # add shipping + payment
 POST /checkout/sessions/{id}/complete  # finalize</code></pre>
-    </div>
-  </div>
-  <aside class="notes">
-    [10:00] Key engineering decision: UCP means you own the checkout server. ACP means you hand off to OpenAI's infrastructure. Different trust models, different revenue share implications, different integration work.
-  </aside>
-</section>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [10:00] Key engineering decision: UCP means you own the
+                        checkout server. ACP means you hand off to OpenAI's
+                        infrastructure. Different trust models, different
+                        revenue share implications, different integration work.
+                    </aside>
+                </section>
 
-<!-- ── 7. AP2 Token ───────────────────────────────────────────────────────── -->
-<section>
-  <h2>AP2 <span class="tag tag-ap2">agentic payment</span></h2>
-  <p style="font-size:0.5em; color:var(--text-muted); margin-bottom:16px;">A scoped, time-limited, single-use payment mandate. The agent carries this token — not a card number.</p>
-  <div class="two-col">
-    <div>
-      <pre style="font-size:0.38em;"><code class="language-json">{
+                <!-- ── 7. AP2 Token ───────────────────────────────────────────────────────── -->
+                <section>
+                    <h2>AP2 <span class="tag tag-ap2">agentic
+                            payment</span></h2>
+                    <p
+                        style="font-size:0.5em; color:var(--text-muted); margin-bottom:16px;">A
+                        scoped, time-limited, single-use payment mandate. The
+                        agent carries this token — not a card number.</p>
+                    <div class="two-col">
+                        <div>
+                            <pre
+                                style="font-size:0.38em;"><code class="language-json">{
   "token_id": "tok_a3f9b2c1...",
   "sub": "user_001",
   "intent": "purchase:retail:paw_print_shortbread",
@@ -342,29 +466,49 @@ POST /checkout/sessions/{id}/complete  # finalize</code></pre>
   "revocation_url": "https://pay.agent/revoke/tok_...",
   "user_consent_proof": "vc:credential:..."
 }</code></pre>
-    </div>
-    <div style="font-size:0.48em;">
-      <ul style="color:var(--text-muted); line-height:2.2;">
-        <li><code style="color:var(--gold);">sub</code> — who authorized the agent</li>
-        <li><code style="color:var(--gold);">intent</code> — exactly what it can buy</li>
-        <li><code style="color:var(--gold);">merchant_scope</code> — only this merchant</li>
-        <li><code style="color:var(--gold);">max_amount</code> — hard cap, no overruns</li>
-        <li><code style="color:var(--gold);">single_use</code> — no replay attacks</li>
-        <li><code style="color:var(--gold);">revocation_url</code> — kill switch</li>
-        <li><code style="color:var(--gold);">user_consent_proof</code> — cryptographic human-authorized proof</li>
-      </ul>
-    </div>
-  </div>
-  <aside class="notes">
-    [12:00] AP2 is still forming — this is the emerging pattern. The idea is the agent carries a cryptographically scoped token rather than raw payment credentials. The user consents once, the token constrains what the agent can spend, where, and when.
-  </aside>
-</section>
+                        </div>
+                        <div style="font-size:0.48em;">
+                            <ul
+                                style="color:var(--text-muted); line-height:2.2;">
+                                <li><code style="color:var(--gold);">sub</code>
+                                    — who authorized the agent</li>
+                                <li><code
+                                        style="color:var(--gold);">intent</code>
+                                    — exactly what it can buy</li>
+                                <li><code
+                                        style="color:var(--gold);">merchant_scope</code>
+                                    — only this merchant</li>
+                                <li><code
+                                        style="color:var(--gold);">max_amount</code>
+                                    — hard cap, no overruns</li>
+                                <li><code
+                                        style="color:var(--gold);">single_use</code>
+                                    — no replay attacks</li>
+                                <li><code
+                                        style="color:var(--gold);">revocation_url</code>
+                                    — kill switch</li>
+                                <li><code
+                                        style="color:var(--gold);">user_consent_proof</code>
+                                    — cryptographic human-authorized proof</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [12:00] AP2 is still forming — this is the emerging
+                        pattern. The idea is the agent carries a
+                        cryptographically scoped token rather than raw payment
+                        credentials. The user consents once, the token
+                        constrains what the agent can spend, where, and when.
+                    </aside>
+                </section>
 
-<!-- ── 8. Full Architecture ───────────────────────────────────────────────── -->
-<section>
-  <h2>Full stack composition</h2>
-  <div class="arch-box" style="margin-top:16px; font-size:0.85em;">
-    <pre style="font-size:0.9em; margin:0; background:transparent; box-shadow:none;">┌─────────────────────────────────────────────────────────────┐
+                <!-- ── 8. Full Architecture ───────────────────────────────────────────────── -->
+                <section>
+                    <h2>Architecture</h2>
+                    <div class="arch-box"
+                        style="margin-top:16px; font-size:0.85em;">
+                        <pre
+                            style="font-size:0.9em; margin:0; background:transparent; box-shadow:none;">┌─────────────────────────────────────────────────────────────┐
 │                  User (Chat / AI Surface)                    │
 └───────────────────────────┬─────────────────────────────────┘
                             │ A2A  JSON-RPC 2.0
@@ -381,148 +525,206 @@ POST /checkout/sessions/{id}/complete  # finalize</code></pre>
           └──────────────────┘  │  /feed/meta (Meta)      │
                                 └─────────────────────────┘
                          AP2 token issued on confirm</pre>
-  </div>
-  <div style="display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
-    <span class="tag tag-mcp">MCP</span>
-    <span class="tag tag-a2a">A2A</span>
-    <span class="tag tag-acp">ACP</span>
-    <span class="tag tag-ucp">UCP</span>
-    <span class="tag tag-ap2">AP2</span>
-  </div>
-  <aside class="notes">
-    [13:30] This is the full picture. Catalog-sync is the publisher side. MCP server is the tool layer. Merchant agent is the A2A server and checkout logic. Everything composes. Let me show it live.
-  </aside>
-</section>
+                    </div>
+                    <div
+                        style="display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+                        <span class="tag tag-mcp">MCP</span>
+                        <span class="tag tag-a2a">A2A</span>
+                        <span class="tag tag-acp">ACP</span>
+                        <span class="tag tag-ucp">UCP</span>
+                        <span class="tag tag-ap2">AP2</span>
+                    </div>
+                    <aside class="notes">
+                        [13:30] This is the full picture. Catalog-sync is the
+                        publisher side. MCP server is the tool layer. Merchant
+                        agent is the A2A server and checkout logic. Everything
+                        composes. Let me show it live.
+                    </aside>
+                </section>
 
-<!-- ── 9. Evals ───────────────────────────────────────────────────────────── -->
-<section>
-  <h2>How do you test this?</h2>
-  <div class="eval-grid" style="margin-top:16px;">
-    <div class="eval-card">
-      <h4>Behavior evals</h4>
-      <p style="color:var(--text-muted);">Send canned prompts → assert correct MCP tools were called, checkout reaches COMPLETED state.</p>
-      <pre style="font-size:0.85em; margin-top:8px;"><code class="language-python">def test_bestsellers_tool_called():
+                <!-- ── 9. Evals ───────────────────────────────────────────────────────────── -->
+                <section style="display:flex; flex-direction:column; height:100%;">
+                    <h2 style="flex-shrink:0;">How do you test this?</h2>
+                    <div class="eval-grid" style="flex:1; margin-top:12px; grid-template-rows:1fr 1fr; align-content:stretch; grid-auto-rows:1fr; height:580px;">
+                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                            <h4>Behavior evals</h4>
+                            <p style="color:var(--text-muted); flex-shrink:0;">Send canned prompts → assert correct MCP tools were called, checkout reaches COMPLETED state.</p>
+                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-python">def test_bestsellers_tool_called():
     resp = send("what are your bestsellers?")
     assert "get_bestsellers" in tool_names(resp)</code></pre>
-    </div>
-    <div class="eval-card">
-      <h4>Protocol compliance</h4>
-      <p style="color:var(--text-muted);">Validate MCP /tools schema, A2A JSON-RPC 2.0 structure, UCP checkout fields, ACP feed spec.</p>
-      <pre style="font-size:0.85em; margin-top:8px;"><code class="language-python">def test_ucp_native_commerce():
+                        </div>
+                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                            <h4>Protocol compliance</h4>
+                            <p style="color:var(--text-muted); flex-shrink:0;">Validate MCP /tools schema, A2A JSON-RPC 2.0 structure, UCP checkout fields, ACP feed spec.</p>
+                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-python">def test_ucp_native_commerce():
     feed = GET("/feed/ucp").json()
     for p in feed["products"]:
         assert "native_commerce" in p</code></pre>
-    </div>
-    <div class="eval-card">
-      <h4>Latency benchmarks</h4>
-      <p style="color:var(--text-muted);">P50/P95/P99 per MCP tool + full A2A round-trip. 10 runs each. Output a rich table.</p>
-      <pre style="font-size:0.85em; margin-top:8px;"><code class="language-bash">Tool              P50    P95    P99
+                        </div>
+                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                            <h4>Latency benchmarks</h4>
+                            <p style="color:var(--text-muted); flex-shrink:0;">P50/P95/P99 per MCP tool + full A2A round-trip. 10 runs each. Output a rich table.</p>
+                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-bash">Tool              P50    P95    P99
 mcp:product_search  42ms  110ms  180ms
 a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
-    </div>
-    <div class="eval-card">
-      <h4>LLM quality judge</h4>
-      <p style="color:var(--text-muted);">GPT-4o scores agent responses: helpfulness, accuracy, protocol_awareness, tone (1–5 each).</p>
-      <pre style="font-size:0.85em; margin-top:8px;"><code class="language-bash">Prompt              Help  Acc  Proto  Tone  Avg
+                        </div>
+                        <div class="eval-card" style="display:flex; flex-direction:column;">
+                            <h4>LLM quality judge</h4>
+                            <p style="color:var(--text-muted); flex-shrink:0;">GPT-4o scores agent responses: helpfulness, accuracy, protocol_awareness, tone (1–5 each).</p>
+                            <pre style="font-size:0.9em; margin-top:auto; flex:1;"><code class="language-bash">Prompt              Help  Acc  Proto  Tone  Avg
 "show me cookies"     5    5    5      4    4.75
 "apply MEOW20"        5    4    5      5    4.75</code></pre>
-    </div>
-  </div>
-  <aside class="notes">
-    [15:30] Engineering test pyramid for agentic systems. Behavior evals are your integration tests. Protocol compliance are your contract tests. Latency and quality are observability. Run these in CI before every demo.
-  </aside>
-</section>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [15:30] Engineering test pyramid for agentic systems.
+                        Behavior evals are your integration tests. Protocol
+                        compliance are your contract tests. Latency and quality
+                        are observability. Run these in CI before every demo.
+                    </aside>
+                </section>
 
-<!-- ── 10. Live Demo ───────────────────────────────────────────────────────── -->
-<section>
-  <h2>Live: the full stack</h2>
-  <p style="font-size:0.52em; color:var(--text-muted); margin-bottom:16px;">Running on <code style="color:var(--cyan);">docker-compose up</code></p>
-  <ul class="step-list">
-    <li><span class="step-num">1</span> <strong>http://localhost:8002/feed/acp</strong> — live ACP feed. /feed/ucp. /feed/meta. Three specs, one source.</li>
-    <li><span class="step-num">2</span> <strong>"show me cookies"</strong> → MCP tab + ⚡ Timeline with latency per tool call</li>
-    <li><span class="step-num">3</span> <strong>"add Kitten Mittons to cart"</strong> → A2A · UCP · ACP tabs light up</li>
-    <li><span class="step-num">4</span> Complete checkout → Payment tab shows decoded AP2 token</li>
-    <li><span class="step-num">5</span> Edit products.json → POST /sync/trigger → MCP immediately reflects change</li>
-    <li><span class="step-num">6</span> <code>docker-compose run evals python run_evals.py --suite compliance</code></li>
-  </ul>
-  <aside class="notes">
-    [17:00] 3 minutes of live demo. Prioritize: Timeline tab (real-time WS trace), the live catalog change, and the AP2 token. If anything breaks, show the eval output instead — it tells the same story.
-  </aside>
-</section>
+                <!-- ── 10. Live Demo ───────────────────────────────────────────────────────── -->
+                <section>
+                    <h2>Live: the full stack</h2>
+                    <p
+                        style="font-size:0.52em; color:var(--text-muted); margin-bottom:16px;">Running
+                        on <code style="color:var(--cyan);">docker-compose
+                            up</code></p>
+                    <ul class="step-list">
+                        <li><span class="step-num">1</span>
+                            <strong>http://localhost:8002/feed/acp</strong> —
+                            live ACP feed. /feed/ucp. /feed/meta. Three specs,
+                            one source.</li>
+                        <li><span class="step-num">2</span>
+                            <strong>"show me cookies"</strong> → MCP tab + ⚡
+                            Timeline with latency per tool call</li>
+                        <li><span class="step-num">3</span>
+                            <strong>"add Kitten Mittons to cart"</strong> → A2A
+                            · UCP · ACP tabs light up</li>
+                        <li><span class="step-num">4</span> Complete checkout →
+                            Payment tab shows decoded AP2 token</li>
+                        <li><span class="step-num">5</span> Edit products.json →
+                            POST /sync/trigger → MCP immediately reflects
+                            change</li>
+                        <li><span class="step-num">6</span> <code>docker-compose
+                                run evals python run_evals.py --suite
+                                compliance</code></li>
+                    </ul>
+                    <aside class="notes">
+                        [17:00] 3 minutes of live demo. Prioritize: Timeline tab
+                        (real-time WS trace), the live catalog change, and the
+                        AP2 token. If anything breaks, show the eval output
+                        instead — it tells the same story.
+                    </aside>
+                </section>
 
-<!-- ── 11. Where Things Stand ─────────────────────────────────────────────── -->
-<section>
-  <h2>What's real, what's forming</h2>
-  <div class="two-col" style="margin-top:16px; font-size:0.5em;">
-    <div>
-      <h3 style="color:var(--green); font-size:1.1em;">Stable today</h3>
-      <ul style="color:var(--text-muted); line-height:2.2;">
-        <li>MCP — widely adopted, solid spec</li>
-        <li>A2A — open, good tooling, agent cards work</li>
-        <li>UCP feed (Google Merchant Center) — live on AI Mode</li>
-        <li>UCP checkout endpoints — 3 REST calls, clear spec</li>
-        <li>Product feed publishing patterns</li>
-      </ul>
-    </div>
-    <div>
-      <h3 style="color:var(--gold); font-size:1.1em;">Still forming</h3>
-      <ul style="color:var(--text-muted); line-height:2.2;">
-        <li>ACP checkout — spec exists, rollout incomplete</li>
-        <li>AP2 — pattern is clear, no standard yet</li>
-        <li>ACP vs UCP convergence — or continued fragmentation?</li>
-        <li>Identity + consent standards across agents</li>
-        <li>Multi-agent checkout delegation</li>
-      </ul>
-    </div>
-  </div>
-  <aside class="notes">
-    [19:00] Honest assessment. Build on MCP + A2A + UCP today. Instrument for ACP. Design your checkout API so it can serve both. AP2 is coming — design your payment flows to be tokenizable.
-  </aside>
-</section>
+                <!-- ── 11. Where Things Stand ─────────────────────────────────────────────── -->
+                <section>
+                    <h2>What's real, what's forming</h2>
+                    <div class="two-col"
+                        style="margin-top:16px; font-size:0.5em;">
+                        <div>
+                            <h3
+                                style="color:var(--green); font-size:1.1em;">Stable
+                                today</h3>
+                            <ul
+                                style="color:var(--text-muted); line-height:2.2;">
+                                <li>MCP — widely adopted, solid spec</li>
+                                <li>A2A — open, good tooling, agent cards
+                                    work</li>
+                                <li>UCP feed (Google Merchant Center) — live on
+                                    AI Mode</li>
+                                <li>UCP checkout endpoints — 3 REST calls, clear
+                                    spec</li>
+                                <li>Product feed publishing patterns</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3
+                                style="color:var(--gold); font-size:1.1em;">Still
+                                forming</h3>
+                            <ul
+                                style="color:var(--text-muted); line-height:2.2;">
+                                <li>ACP checkout — spec exists, rollout
+                                    incomplete</li>
+                                <li>AP2 — pattern is clear, no standard yet</li>
+                                <li>ACP vs UCP convergence — or continued
+                                    fragmentation?</li>
+                                <li>Identity + consent standards across
+                                    agents</li>
+                                <li>Multi-agent checkout delegation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [19:00] Honest assessment. Build on MCP + A2A + UCP
+                        today. Instrument for ACP. Design your checkout API so
+                        it can serve both. AP2 is coming — design your payment
+                        flows to be tokenizable.
+                    </aside>
+                </section>
 
-<!-- ── 12. Take Away + Repo ───────────────────────────────────────────────── -->
-<section>
-  <h2>Take it and build</h2>
-  <div style="text-align:center; margin-top:20px;">
-    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display:inline-block; min-width: 480px;">
-      <p style="font-family: var(--font-mono); font-size:0.7em; color:var(--cyan); margin:0;">
-        github.com/ahnafyy/<br/>
-        ai-engineer-2026-agentic-commerce-stack
-      </p>
-      <p style="font-size:0.46em; color:var(--text-muted); margin-top:12px;">
-        GitHub template repo — click "Use this template"
-      </p>
-    </div>
-    <div style="margin-top:20px; font-size:0.48em; display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:left;">
-      <div style="color:var(--text-muted);">
-        <div style="color:var(--green); font-weight:600; margin-bottom:4px;">template/</div>
-        Minimal 3-service starter.<br/>Replace PRODUCTS + SYSTEM_PROMPT.<br/>docker-compose up.
-      </div>
-      <div style="color:var(--text-muted);">
-        <div style="color:var(--cyan); font-weight:600; margin-bottom:4px;">evals/</div>
-        4-suite harness.<br/>pytest + LLM judge.<br/>Add to CI day 1.
-      </div>
-      <div style="color:var(--text-muted);">
-        <div style="color:var(--violet-bright); font-weight:600; margin-bottom:4px;">catalog-sync/</div>
-        ACP + UCP + Meta feeds<br/>from one source JSON.<br/>Extend to your real PIM.
-      </div>
-    </div>
-  </div>
-  <p style="font-size:0.44em; color:var(--text-muted); margin-top:20px; text-align:center;">
-    Ahnaf Prio · <a href="https://linkedin.com/in/ahnafy">linkedin.com/in/ahnafy</a>
-  </p>
-  <aside class="notes">
-    [20:00] That's the stack. Repo is a GitHub template — hit Use this template, swap in your catalog, run evals on day 1. Thanks.
-  </aside>
-</section>
+                <!-- ── 12. Take Away + Repo ───────────────────────────────────────────────── -->
+                <section>
+                    <h2>Take it and build</h2>
+                    <div style="text-align:center; margin-top:20px;">
+                        <div
+                            style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display:inline-block; min-width: 480px;">
+                            <p
+                                style="font-family: var(--font-mono); font-size:0.7em; color:var(--cyan); margin:0;">
+                                github.com/ahnafyy/<br />
+                                ai-engineer-2026-agentic-commerce-stack
+                            </p>
+                            <p
+                                style="font-size:0.46em; color:var(--text-muted); margin-top:12px;">
+                                GitHub template repo — click "Use this template"
+                            </p>
+                        </div>
+                        <div
+                            style="margin-top:20px; font-size:0.48em; display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:left;">
+                            <div style="color:var(--text-muted);">
+                                <div
+                                    style="color:var(--green); font-weight:600; margin-bottom:4px;">template/</div>
+                                Minimal 3-service starter.<br />Replace PRODUCTS
+                                + SYSTEM_PROMPT.<br />docker-compose up.
+                            </div>
+                            <div style="color:var(--text-muted);">
+                                <div
+                                    style="color:var(--cyan); font-weight:600; margin-bottom:4px;">evals/</div>
+                                4-suite harness.<br />pytest + LLM
+                                judge.<br />Add to CI day 1.
+                            </div>
+                            <div style="color:var(--text-muted);">
+                                <div
+                                    style="color:var(--violet-bright); font-weight:600; margin-bottom:4px;">catalog-sync/</div>
+                                ACP + UCP + Meta feeds<br />from one source
+                                JSON.<br />Extend to your real PIM.
+                            </div>
+                        </div>
+                    </div>
+                    <p
+                        style="font-size:0.44em; color:var(--text-muted); margin-top:20px; text-align:center;">
+                        Ahnaf Prio · <a
+                            href="https://linkedin.com/in/ahnafy">linkedin.com/in/ahnafy</a>
+                    </p>
+                    <aside class="notes">
+                        [20:00] That's the stack. Repo is a GitHub template —
+                        hit Use this template, swap in your catalog, run evals
+                        on day 1. Thanks.
+                    </aside>
+                </section>
 
-</div>
-</div>
+            </div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
-<script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+        <script>
   Reveal.initialize({
     hash: true,
     slideNumber: 'c/t',
@@ -538,5 +740,5 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
     plugins: [RevealNotes, RevealHighlight],
   });
 </script>
-</body>
+    </body>
 </html>
