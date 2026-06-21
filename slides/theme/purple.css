@@ -1,0 +1,332 @@
+/* ============================================================
+   Agentic Commerce — Minnebar 26
+   Custom Reveal.js Theme: "Purple Space"
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* --- Root Variables --- */
+:root {
+  --bg-deep:       #0D0221;
+  --bg-card:       #160832;
+  --bg-elevated:   #1E0D42;
+  --violet:        #7B2FBE;
+  --violet-bright: #9D4EDD;
+  --violet-glow:   rgba(123,47,190,0.35);
+  --cyan:          #00F5FF;
+  --cyan-dim:      rgba(0,245,255,0.15);
+  --gold:          #FFD700;
+  --pink:          #FF6EC7;
+  --green:         #39FF14;
+  --text-primary:  #F0E6FF;
+  --text-muted:    #9B89C4;
+  --border:        rgba(123,47,190,0.4);
+  --font-head:     'Space Grotesk', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+}
+
+/* --- Base --- */
+.reveal-viewport {
+  background: var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(123,47,190,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,245,255,0.06) 0%, transparent 50%);
+}
+
+.reveal {
+  font-family: var(--font-head);
+  font-size: 36px;
+  color: var(--text-primary);
+}
+
+/* --- Headings --- */
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--text-primary);
+  text-shadow: 0 0 30px var(--violet-glow);
+}
+
+.reveal h1 { font-size: 2.2em; line-height: 1.1; }
+.reveal h2 { font-size: 1.5em; color: var(--cyan); }
+.reveal h3 { font-size: 1.1em; color: var(--violet-bright); }
+
+/* --- Links --- */
+.reveal a { color: var(--cyan); text-decoration: none; border-bottom: 1px solid var(--cyan-dim); }
+.reveal a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* --- Code --- */
+.reveal code, .reveal pre {
+  font-family: var(--font-mono);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.reveal code { padding: 2px 8px; color: var(--cyan); font-size: 0.85em; }
+.reveal pre { padding: 16px; font-size: 0.55em; line-height: 1.6; box-shadow: 0 0 20px var(--violet-glow); }
+.reveal pre code { background: none; border: none; padding: 0; color: var(--text-primary); }
+
+/* --- Slides --- */
+.reveal .slides section {
+  text-align: left;
+  padding: 40px 60px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Center-layout helper */
+.center-slide { text-align: center !important; }
+.center-slide h1, .center-slide h2, .center-slide p { text-align: center; }
+
+/* --- Utility cards --- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 0 24px var(--violet-glow);
+}
+
+.card-grid {
+  display: grid;
+  gap: 16px;
+}
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* --- Tag / pill --- */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.42em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tag-cyan   { background: rgba(0,245,255,0.15); color: var(--cyan); border: 1px solid var(--cyan); }
+.tag-violet { background: rgba(123,47,190,0.25); color: var(--violet-bright); border: 1px solid var(--violet-bright); }
+.tag-gold   { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid var(--gold); }
+.tag-pink   { background: rgba(255,110,199,0.15); color: var(--pink); border: 1px solid var(--pink); }
+.tag-green  { background: rgba(57,255,20,0.12); color: var(--green); border: 1px solid var(--green); }
+.tag-muted  { background: rgba(155,137,196,0.15); color: var(--text-muted); border: 1px solid var(--text-muted); }
+
+/* --- Glow text --- */
+.glow-cyan   { color: var(--cyan);   text-shadow: 0 0 20px var(--cyan); }
+.glow-violet { color: var(--violet-bright); text-shadow: 0 0 20px var(--violet-bright); }
+.glow-gold   { color: var(--gold);   text-shadow: 0 0 20px var(--gold); }
+.glow-pink   { color: var(--pink);   text-shadow: 0 0 15px var(--pink); }
+
+/* --- Progress bar --- */
+.reveal .progress { background: rgba(123,47,190,0.2); }
+.reveal .progress span { background: linear-gradient(90deg, var(--violet), var(--cyan)); }
+
+/* --- Slide number --- */
+.reveal .slide-number {
+  font-family: var(--font-mono);
+  font-size: 0.4em;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  bottom: 20px;
+  right: 20px;
+}
+
+/* --- Protocol Stack Diagram --- */
+.stack-layer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 12px;
+  margin: 6px 0;
+  font-family: var(--font-mono);
+  font-size: 0.5em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-align: center;
+  position: relative;
+}
+.stack-mcp      { background: rgba(57,255,20,0.1);  border: 1.5px solid var(--green);  color: var(--green); }
+.stack-a2a      { background: rgba(0,245,255,0.1);  border: 1.5px solid var(--cyan);   color: var(--cyan); }
+.stack-acp      { background: rgba(255,110,199,0.1); border: 1.5px solid var(--pink);  color: var(--pink); }
+.stack-ucp      { background: rgba(123,47,190,0.2); border: 1.5px solid var(--violet-bright); color: var(--violet-bright); }
+.stack-ap2      { background: rgba(255,215,0,0.1);  border: 1.5px solid var(--gold);   color: var(--gold); }
+.stack-arrow    { text-align: center; color: var(--text-muted); font-size: 0.5em; margin: 2px 0; }
+
+/* --- Comparison Table --- */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.5em;
+}
+.compare-table th {
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 1em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.compare-table th.th-feature { color: var(--text-muted); text-align: left; }
+.compare-table th.th-acp     { color: var(--pink);   background: rgba(255,110,199,0.08); }
+.compare-table th.th-ucp     { color: var(--violet-bright); background: rgba(123,47,190,0.12); }
+.compare-table td {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+.compare-table td:first-child { color: var(--text-muted); font-weight: 500; }
+.compare-table td.acp-col { background: rgba(255,110,199,0.04); color: var(--text-primary); }
+.compare-table td.ucp-col { background: rgba(123,47,190,0.06); color: var(--text-primary); }
+.compare-table tr:hover td { background: rgba(123,47,190,0.1); }
+
+/* --- JWT token card --- */
+.token-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--gold);
+  border-radius: 16px;
+  padding: 20px 28px;
+  font-family: var(--font-mono);
+  font-size: 0.42em;
+  box-shadow: 0 0 30px rgba(255,215,0,0.15);
+}
+.token-header { color: var(--pink); margin-bottom: 4px; }
+.token-payload { color: var(--cyan); }
+.token-field   { margin: 6px 0; }
+.token-key     { color: var(--violet-bright); }
+.token-value   { color: var(--gold); }
+.token-string  { color: var(--green); }
+.token-number  { color: var(--pink); }
+
+/* --- Autonomy Spectrum (interactive) --- */
+.spectrum-container {
+  position: relative;
+  padding: 32px 0 16px;
+}
+.spectrum-track {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, var(--violet) 0%, var(--cyan) 50%, var(--gold) 100%);
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+}
+.spectrum-nodes {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+.spectrum-node {
+  text-align: center;
+  width: 22%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.spectrum-node:hover { transform: translateY(-4px); }
+.spectrum-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  border: 3px solid transparent;
+  transition: all 0.3s;
+}
+.spectrum-node.active .spectrum-dot { transform: scale(1.5); box-shadow: 0 0 12px currentColor; }
+.spectrum-label { font-size: 0.38em; font-weight: 600; color: var(--text-muted); }
+.spectrum-sublabel { font-size: 0.3em; color: var(--text-muted); margin-top: 4px; }
+.spectrum-node.active .spectrum-label { color: var(--text-primary); }
+
+.spectrum-detail {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 20px;
+  min-height: 80px;
+  transition: all 0.3s;
+  font-size: 0.45em;
+}
+.spectrum-detail h4 { margin: 0 0 8px; color: var(--cyan); font-size: 1.1em; }
+.spectrum-detail p  { margin: 0; color: var(--text-muted); line-height: 1.5; }
+.spectrum-detail .example { margin-top: 8px; color: var(--violet-bright); font-family: var(--font-mono); font-size: 0.9em; }
+
+/* --- Vendor matrix --- */
+.vendor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  font-size: 0.4em;
+}
+.vendor-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.vendor-item:hover { border-color: var(--violet-bright); box-shadow: 0 0 12px var(--violet-glow); }
+.vendor-name { font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.vendor-badge { font-size: 0.85em; color: var(--text-muted); }
+
+/* --- Hero robot SVG container --- */
+.robot-hero {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* --- Slide-specific overrides --- */
+.slide-hero { text-align: left; }
+.slide-hero .subtitle { font-size: 0.55em; color: var(--text-muted); margin-top: 12px; }
+.slide-hero .kicker  { font-size: 0.4em; font-family: var(--font-mono); color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+
+/* --- Fragment animations --- */
+.reveal .fragment.fade-up { transform: translate(0, 20px); }
+
+/* --- Scrollable (for long content) --- */
+.scrollable { overflow-y: auto; max-height: 400px; padding-right: 8px; }
+.scrollable::-webkit-scrollbar { width: 4px; }
+.scrollable::-webkit-scrollbar-track { background: var(--bg-card); }
+.scrollable::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 2px; }
+
+/* --- Grid line background on select slides --- */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(123,47,190,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123,47,190,0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* --- Divider --- */
+.divider {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan));
+  border-radius: 2px;
+  margin: 16px 0;
+}
+
+/* --- Stat big number --- */
+.stat-big {
+  font-size: 1.8em;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: linear-gradient(135deg, var(--violet-bright), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+.stat-label { font-size: 0.45em; color: var(--text-muted); margin-top: 4px; }
+
+/* --- Reveal.js theme required vars --- */
+section.has-dark-background, section.has-dark-background h1,
+section.has-dark-background h2, section.has-dark-background h3 { color: var(--text-primary); }

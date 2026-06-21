@@ -1,0 +1,27 @@
+services:
+  mcp-server:
+    build: ./mcp-server
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+
+  merchant-agent:
+    build: ./merchant-agent
+    ports:
+      - "10999:10999"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MCP_SERVER_URL=http://mcp-server:8001
+      - AGENT_BASE_URL=http://localhost:10999
+    depends_on:
+      - mcp-server
+
+  chat-client:
+    build: ./chat-client
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_AGENT_URL=http://localhost:10999
+    depends_on:
+      - merchant-agent

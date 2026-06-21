@@ -1,0 +1,84 @@
+services:
+  # ── 1. Catalog Sync (batch/ETL pipeline) ────────────────────────────────────
+  # Reads data/products.json, publishes ACP + UCP + Meta feeds every 60s.
+  # MCP server reads live from this feed — no hardcoded catalog.
+  catalog-sync:
+    build: ./demo/catalog-sync
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./demo/catalog-sync/data:/app/data  # mount for live edits during demo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── 2. MCP Server ─────────────────────────────────────────────────────────────
+  # Fetches live catalog from catalog-sync (5s TTL cache). Exposes all MCP tools.
+  mcp-server:
+    build: ./demo/mcp-server
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - CATALOG_SYNC_URL=http://catalog-sync:8002
+    depends_on:
+      catalog-sync:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── 3. Merchant Agent (A2A + UCP + WebSocket trace) ─────────────────────────
+  # GPT-4o powered agent. Speaks A2A (JSON-RPC 2.0), implements UCP checkout,
+  # broadcasts real-time trace events via /ws/trace WebSocket.
+  merchant-agent:
+    build: ./demo/merchant-agent
+    ports:
+      - "10999:10999"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - MCP_SERVER_URL=http://mcp-server:8001
+      - AGENT_BASE_URL=http://localhost:10999
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10999/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 4. Chat Client (React + Protocol Inspector + Timeline) ──────────────────
+  # Serves the React UI on port 3000 via nginx.
+  # Tabs: A2A · MCP · UCP · ACP · Payment · ⚡Timeline (WebSocket real-time trace)
+  chat-client:
+    build: ./demo/chat-client
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_AGENT_URL=http://localhost:10999
+    depends_on:
+      - merchant-agent
+
+  # ── 5. Evals (on-demand — use docker-compose run) ────────────────────────────
+  # Run with: docker-compose run evals python run_evals.py --suite all --report
+  evals:
+    build: ./evals
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - AGENT_URL=http://merchant-agent:10999
+      - MCP_URL=http://mcp-server:8001
+      - CATALOG_SYNC_URL=http://catalog-sync:8002
+      - BENCH_N=10
+    depends_on:
+      - merchant-agent
+      - mcp-server
+      - catalog-sync
+    profiles:
+      - evals  # not started by default; use docker-compose --profile evals run evals ...
+    entrypoint: ["python", "run_evals.py"]
+    command: ["--suite", "all", "--report"]
