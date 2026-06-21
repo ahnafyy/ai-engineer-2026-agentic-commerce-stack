@@ -46,7 +46,8 @@ def _acp_variant_to_product(prod: dict, variant: dict) -> dict:
         "name": prod.get("title", prod["id"]),
         "category": category,
         "price": round(price_minor / 100, 2),
-        "stock": 99 if avail.get("available") else 0,  # ACP feed has no stock count; treat available=True as >0
+        # Prefer explicit stock_count if present (our internal extension); fall back to boolean
+        "stock": avail.get("stock_count", 99 if avail.get("available") else 0),
         "description": prod.get("description", {}).get("plain", ""),
         "image": "🐾",
     }

@@ -76,6 +76,8 @@ def _to_acp(products: list[dict]) -> dict:
                         "availability": {
                             "available": p["stock"] > 0,
                             "status": "in_stock" if p["stock"] > 0 else "out_of_stock",
+                            # Non-standard extension — used internally by MCP server
+                            "stock_count": p["stock"],
                         },
                         "categories": [
                             {"value": p["category"], "taxonomy": "merchant"}
