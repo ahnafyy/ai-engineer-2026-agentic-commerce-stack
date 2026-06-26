@@ -250,7 +250,16 @@ async def call_tool(request: Request):
     handler = dispatch.get(tool_name)
     if not handler:
         return JSONResponse(status_code=400, content={"error": f"Unknown tool: {tool_name}"})
-    return handler()
+    if not isinstance(tool_input, dict):
+        return JSONResponse(status_code=400, content={"error": "'input' must be an object"})
+    try:
+        return handler()
+    except TypeError as exc:
+        # Bad/missing arguments for the tool (e.g. product_search with no query).
+        return JSONResponse(
+            status_code=400,
+            content={"error": f"Invalid arguments for tool '{tool_name}': {exc}"},
+        )
 
 
 # ── Discovery tool implementations ─────────────────────────────────────────────

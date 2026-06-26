@@ -33,14 +33,15 @@ services:
       retries: 3
 
   # ── 3. Merchant Agent (A2A + UCP + WebSocket trace) ─────────────────────────
-  # GPT-4o powered agent. Speaks A2A (JSON-RPC 2.0), implements UCP checkout,
+  # Cerebras-powered agent. Speaks A2A (JSON-RPC 2.0), implements UCP checkout,
   # broadcasts real-time trace events via /ws/trace WebSocket.
   merchant-agent:
     build: ./demo/merchant-agent
     ports:
       - "10999:10999"
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+      - CEREBRAS_MODEL=${CEREBRAS_MODEL:-gpt-oss-120b}
       - MCP_SERVER_URL=http://mcp-server:8001
       - AGENT_BASE_URL=http://localhost:10999
     depends_on:
@@ -69,7 +70,8 @@ services:
   evals:
     build: ./evals
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+      - CEREBRAS_MODEL=${CEREBRAS_MODEL:-gpt-oss-120b}
       - AGENT_URL=http://merchant-agent:10999
       - MCP_URL=http://mcp-server:8001
       - CATALOG_SYNC_URL=http://catalog-sync:8002

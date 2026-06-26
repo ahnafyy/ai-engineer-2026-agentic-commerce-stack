@@ -44,8 +44,19 @@ _history: list[dict] = []
 
 # ── Loaders ────────────────────────────────────────────────────────────────────
 def _load_source() -> dict:
-    with open(DATA_FILE) as f:
-        return json.load(f)
+    # The data file is hand-edited live during the demo. On macOS/Docker the file
+    # can be read mid-save (truncated/empty), which raises JSONDecodeError. Retry a
+    # few times with a short backoff so an edit-then-trigger doesn't 500. run_sync
+    # is idempotent, so a retried read is safe.
+    last_err: Exception | None = None
+    for attempt in range(5):
+        try:
+            with open(DATA_FILE) as f:
+                return json.load(f)
+        except (json.JSONDecodeError, ValueError) as exc:
+            last_err = exc
+            time.sleep(0.3)
+    raise last_err  # type: ignore[misc]
 
 
 # ── Feed transformers ──────────────────────────────────────────────────────────
@@ -242,7 +253,14 @@ def status():
 
 @app.post("/sync/trigger")
 def trigger_sync():
-    entry = run_sync()
+    try:
+        entry = run_sync()
+    except (json.JSONDecodeError, ValueError) as exc:
+        # Source file was likely read mid-save. Sync is idempotent — just trigger again.
+        return JSONResponse(
+            status_code=409,
+            content={"status": "retry", "error": f"Source not readable yet ({exc}); trigger again."},
+        )
     return {"status": "ok", "message": "Sync triggered manually", "result": entry}
 
 

@@ -4,12 +4,12 @@ The `evals/` harness checks that the stack actually behaves — not just that it
 
 ## The four suites
 
-| Suite | Type | Needs GPT-4o? | Checks |
+| Suite | Type | Needs LLM? | Checks |
 |---|---|---|---|
 | **behavior** | pytest | ✅ yes (A2A) | Did the agent call the *right* MCP tools for each prompt, and does a buy reach `COMPLETED` with an order + AP2 token? |
 | **compliance** | pytest | partial | Do MCP `/tools`, the A2A agent card + JSON-RPC, the UCP profile + checkout, and the ACP feed match their specs? |
 | **latency** | subprocess | no¹ | P50/P95/P99 for each MCP tool and the catalog feed (and A2A round-trip if quota allows). |
-| **quality** | subprocess | ✅ yes (judge + agent) | A GPT-4o judge scores each response 1–5 on helpfulness, accuracy, protocol_awareness, and tone. |
+| **quality** | subprocess | ✅ yes (judge + agent) | A Cerebras model judges each response 1–5 on helpfulness, accuracy, protocol_awareness, and tone. |
 
 ¹ The MCP/feed latency rows need no LLM; the A2A latency rows do.
 
@@ -30,7 +30,7 @@ Inside the compose network the suites reach services by hostname (`mcp-server:80
 The suites default to **Docker hostnames**, so when the stack runs on your host you must override the URLs:
 
 ```bash
-set -a; source .env; set +a            # GITHUB_TOKEN for the quality judge
+set -a; source .env; set +a            # CEREBRAS_API_KEY for the quality judge
 cd evals
 AGENT_URL=http://localhost:10999 \
 MCP_URL=http://localhost:8001 \
@@ -43,7 +43,7 @@ CATALOG_SYNC_URL=http://localhost:8002 \
 | `AGENT_URL` | `http://merchant-agent:10999` | `http://localhost:10999` |
 | `MCP_URL` | `http://mcp-server:8001` | `http://localhost:8001` |
 | `CATALOG_SYNC_URL` | `http://catalog-sync:8002` | `http://localhost:8002` |
-| `GITHUB_TOKEN` | — | required for `quality` |
+| `CEREBRAS_API_KEY` | — | required for `quality` |
 
 `--report` writes a timestamped JSON to `evals/results/`.
 
@@ -70,12 +70,12 @@ The runner exits **0** only if every suite passes; non-zero otherwise — so it'
 
 ## Rate limits
 
-The agent and the quality judge both call **GPT-4o via GitHub Models** (`https://models.inference.ai.azure.com`, authed with `GITHUB_TOKEN`). The free tier allows roughly **50 GPT-4o requests/day per account** on a **rolling 24-hour** window (the `UserByModelByDay` counter).
+The agent and the quality judge both call a model via **Cerebras inference** (`https://api.cerebras.ai/v1`, authed with `CEREBRAS_API_KEY`; model set by `CEREBRAS_MODEL`, default `gpt-oss-120b`). Free-tier keys have per-minute request/token limits and a daily token ceiling.
 
-A single `--suite all` run spends ~18 of those (behavior ~10, quality ~10, compliance ~3); the latency A2A rows and any live demo clicking share the same budget. When it's exhausted you'll see:
+A single `--suite all` run spends ~18 model calls (behavior ~10, quality ~10, compliance ~3); the latency A2A rows and any live demo clicking share the same budget. When a limit is hit you'll see a `429`:
 
 ```
-429 - RateLimitReached: Rate limit of 50 per 86400s exceeded for UserByModelByDay
+429 - Too Many Requests: rate limit exceeded
 ```
 
 When that happens:
@@ -84,7 +84,7 @@ When that happens:
 - `quality` reports **FAIL** with a rate-limit hint (it no longer mislabels an all-zero run as PASS).
 - `latency`'s MCP/feed rows still pass; its A2A rows may not.
 
-**To get a clean run:** stop making GPT-4o calls for ~24h so the quota refills, then run `--suite all` once. To remove the cap entirely, point the agent/judge at a paid OpenAI or Azure OpenAI key (per-token billing, no daily ceiling) instead of GitHub Models.
+**To get a clean run:** wait for the per-minute window to reset (or pace the suites), then run `--suite all` once. To raise the ceiling, upgrade the Cerebras plan or use a higher-tier key, or set `CEREBRAS_MODEL` to a model with more headroom.
 
 ## Adding a case
 

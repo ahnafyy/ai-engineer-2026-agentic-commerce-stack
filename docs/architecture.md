@@ -8,14 +8,15 @@ This stack models a real merchant's agentic-commerce surface as four small servi
 |---|---|---|---|
 | `demo/catalog-sync` | 8002 | FastAPI + APScheduler | Pretends to be the merchant's PIM/ERP. Reads `data/products.json` and republishes it as three competing feed formats (ACP, UCP, Meta) on a 60s schedule. |
 | `demo/mcp-server` | 8001 | FastAPI | Exposes the catalog and checkout as **MCP tools**. Has **no hardcoded catalog** — it pulls the live ACP feed from catalog-sync with a 5-second TTL cache. |
-| `demo/merchant-agent` | 10999 | FastAPI + OpenAI SDK | The **GPT-4o agent**. Speaks A2A (JSON-RPC) to clients, calls MCP tools, drives the UCP checkout lifecycle, issues AP2 tokens, and broadcasts a live event trace over a WebSocket. |
+| `demo/merchant-agent` | 10999 | FastAPI + OpenAI SDK | The **Cerebras agent** (OpenAI-compatible API). Speaks A2A (JSON-RPC) to clients, calls MCP tools, drives the UCP checkout lifecycle, issues AP2 tokens, and broadcasts a live event trace over a WebSocket. |
 | `demo/chat-client` | 3000 | React 18 + TypeScript | Chat UI plus a 6-tab Protocol Inspector (A2A, MCP, UCP, ACP, Payment, ⚡ Timeline). |
 
 ### Environment variables
 
 | Variable | Used by | Local value | Docker default |
 |---|---|---|---|
-| `GITHUB_TOKEN` | merchant-agent, evals/quality | PAT with `read:packages` | — |
+| `CEREBRAS_API_KEY` | merchant-agent, evals/quality | Cerebras API key | — |
+| `CEREBRAS_MODEL` | merchant-agent, evals/quality | `gpt-oss-120b` | `gpt-oss-120b` |
 | `CATALOG_SYNC_URL` | mcp-server | `http://localhost:8002` | `http://catalog-sync:8002` |
 | `MCP_SERVER_URL` | merchant-agent, mcp-server | `http://localhost:8001` | `http://mcp-server:8001` |
 | `AGENT_BASE_URL` | merchant-agent | `http://localhost:10999` | `http://merchant-agent:10999` |
@@ -44,11 +45,11 @@ A single user message — "add Kitten Mittons Shortbread to cart and check out" 
 ```mermaid
 sequenceDiagram
     participant U as Chat Client
-    participant A as Merchant Agent (GPT-4o)
+    participant A as Merchant Agent (Cerebras)
     participant M as MCP Server
     participant C as Catalog Sync
     U->>A: POST /a2a (message/send)
-    A->>A: GPT-4o decides tools to call
+    A->>A: Cerebras model decides tools to call
     A->>M: POST /tools/call product_search
     M->>C: GET /feed/acp (cache miss → refresh)
     C-->>M: ACP product feed
@@ -83,7 +84,7 @@ The chat client and the eval suites both depend on this exact structure returned
 }
 ```
 
-> When the agent's LLM call fails (e.g. a GitHub Models rate limit), the agent returns HTTP 200 with a JSON-RPC **`error`** object instead of `result`. Clients and evals must check for `error` — an empty `result` is the symptom, not the cause. See [evals.md](evals.md#rate-limits).
+> When the agent's LLM call fails (e.g. a Cerebras rate limit), the agent returns HTTP 200 with a JSON-RPC **`error`** object instead of `result`. Clients and evals must check for `error` — an empty `result` is the symptom, not the cause. See [evals.md](evals.md#rate-limits).
 
 ## The live-catalog design
 

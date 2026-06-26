@@ -1,7 +1,7 @@
 """
-LLM Quality Evals — GPT-4o as judge.
+LLM Quality Evals — Cerebras model as judge.
 ======================================
-Sends predefined prompts to the agent, then uses GPT-4o to score each
+Sends predefined prompts to the agent, then uses a Cerebras model to score each
 response on 4 dimensions (1–5 scale):
 
   - helpfulness:         Did the agent address the user's actual need?
@@ -11,7 +11,7 @@ response on 4 dimensions (1–5 scale):
 
 Prints a scorecard table and outputs RESULTS_JSON:<json> to stdout.
 
-Requires: GITHUB_TOKEN env var (used for GPT-4o via GitHub AI Models)
+Requires: CEREBRAS_API_KEY env var (used for the judge via Cerebras inference)
 """
 import os
 import sys
@@ -26,14 +26,16 @@ from rich.table import Table
 from rich import box
 
 AGENT_URL      = os.environ.get("AGENT_URL",    "http://merchant-agent:10999")
-GITHUB_TOKEN   = os.environ.get("GITHUB_TOKEN", "")
+CEREBRAS_API_KEY  = os.environ.get("CEREBRAS_API_KEY", "")
+CEREBRAS_BASE_URL = os.environ.get("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
+CEREBRAS_MODEL    = os.environ.get("CEREBRAS_MODEL", "gpt-oss-120b")
 TIMEOUT        = 60.0
 console        = Console(stderr=True)
 
 judge_client = OpenAI(
-    base_url="https://models.inference.ai.azure.com",
-    api_key=GITHUB_TOKEN,
-) if GITHUB_TOKEN else None
+    base_url=CEREBRAS_BASE_URL,
+    api_key=CEREBRAS_API_KEY,
+) if CEREBRAS_API_KEY else None
 
 TEST_CASES = [
     {
@@ -85,7 +87,7 @@ def _send(prompt: str) -> dict:
     r.raise_for_status()
     body = r.json()
     # The agent returns HTTP 200 with a JSON-RPC error body when the LLM call fails
-    # (e.g. GitHub Models rate limit). Surface that as a real failure, not an empty score.
+    # (e.g. Cerebras rate limit). Surface that as a real failure, not an empty score.
     if body.get("error"):
         msg = body["error"].get("message", body["error"]) if isinstance(body["error"], dict) else body["error"]
         raise RuntimeError(f"agent JSON-RPC error: {msg}")
@@ -98,7 +100,7 @@ def _send(prompt: str) -> dict:
 def _judge(prompt: str, response: str, tools: list[str], expected_tools: list[str]) -> dict:
     if not judge_client:
         return {"helpfulness": 0, "accuracy": 0, "protocol_awareness": 0, "tone": 0,
-                "reasoning": "GITHUB_TOKEN not set — skipping LLM judge"}
+                "reasoning": "CEREBRAS_API_KEY not set — skipping LLM judge"}
     user_content = (
         f"USER PROMPT: {prompt}\n\n"
         f"AGENT RESPONSE:\n{response}\n\n"
@@ -107,7 +109,7 @@ def _judge(prompt: str, response: str, tools: list[str], expected_tools: list[st
     )
     try:
         resp = judge_client.chat.completions.create(
-            model="gpt-4o",
+            model=CEREBRAS_MODEL,
             messages=[
                 {"role": "system", "content": JUDGE_SYSTEM},
                 {"role": "user", "content": user_content},
@@ -127,8 +129,8 @@ def _is_rate_limit(text: str) -> bool:
 
 if __name__ == "__main__":
     console.rule("[bold cyan]LLM Quality Evals[/bold cyan]")
-    if not GITHUB_TOKEN:
-        console.print("[red]ERROR: GITHUB_TOKEN not set — the judge cannot run. This is a FAILURE, not a pass.[/red]")
+    if not CEREBRAS_API_KEY:
+        console.print("[red]ERROR: CEREBRAS_API_KEY not set — the judge cannot run. This is a FAILURE, not a pass.[/red]")
 
     scores = []
     rate_limited = False
@@ -184,9 +186,8 @@ if __name__ == "__main__":
         console.print(f"[red]{len(failed)} case(s) could not be graded — quality eval FAILED.[/red]")
         if rate_limited:
             console.print(
-                "[yellow]Cause looks like a GitHub Models rate limit (free tier: ~50 GPT-4o "
-                "requests/day, rolling 24h). Wait for the quota to reset, or point the agent/judge "
-                "at an OpenAI/Azure key, then re-run.[/yellow]"
+                "[yellow]Cause looks like a Cerebras rate limit. Wait for the quota to reset, "
+                "or point the agent/judge at a different CEREBRAS_API_KEY / model, then re-run.[/yellow]"
             )
 
     print(f"RESULTS_JSON:{json.dumps({'scores': scores, 'overall_avg': overall_avg, 'failed': len(failed), 'graded': len(graded), 'rate_limited': rate_limited})}")

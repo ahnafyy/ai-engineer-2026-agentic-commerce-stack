@@ -11,25 +11,25 @@ Demo merchant: **Purrfect Bites** 🐱 — a fictional cat bakery.
 ```bash
 git clone https://github.com/ahnafyy/ai-engineer-2026-agentic-commerce-stack
 cd ai-engineer-2026-agentic-commerce-stack
-cp .env.example .env        # add your GITHUB_TOKEN
+cp .env.example .env        # add your CEREBRAS_API_KEY
 docker-compose up --build
 ```
 
 | Service | URL | What it does |
 |---|---|---|
 | Chat UI + Protocol Inspector | http://localhost:3000 | React UI with 6 inspector tabs including real-time Timeline |
-| Merchant Agent (A2A + UCP + WS) | http://localhost:10999 | GPT-4o agent, A2A JSON-RPC, WebSocket trace |
+| Merchant Agent (A2A + UCP + WS) | http://localhost:10999 | Cerebras agent, A2A JSON-RPC, WebSocket trace |
 | MCP Server | http://localhost:8001 | 12 MCP tools, live catalog from catalog-sync |
 | Catalog Sync (ETL batch job) | http://localhost:8002 | ACP + UCP + Meta feed publisher, 60s schedule |
 
-**`GITHUB_TOKEN`** — GitHub PAT with `read:packages` scope, used to call GPT-4o via GitHub AI Models.
+**`CEREBRAS_API_KEY`** — a Cerebras API key, used to call the model (default `gpt-oss-120b`) via Cerebras inference. Get one at https://cloud.cerebras.ai. Override the model with `CEREBRAS_MODEL`.
 
 ### Run without Docker
 
 No Docker? Use the launcher — it creates a `.venv`, installs deps, and starts catalog-sync, the MCP server, the merchant agent, and the React dev server, all wired to `localhost`:
 
 ```bash
-cp .env.example .env        # add your GITHUB_TOKEN
+cp .env.example .env        # add your CEREBRAS_API_KEY
 ./scripts/app-start.sh      # Ctrl+C stops everything
 ```
 
@@ -39,7 +39,7 @@ Deep dives live in [`docs/`](docs/README.md):
 
 - [Architecture](docs/architecture.md) — services, ports, env vars, caching, and the lifecycle of one chat turn
 - [Protocol stack](docs/protocols.md) — MCP, A2A, ACP, UCP, AP2 explained, with where each lives and example payloads
-- [Evaluation guide](docs/evals.md) — running the four suites, reading the output, and the GitHub Models rate-limit caveat
+- [Evaluation guide](docs/evals.md) — running the four suites, reading the output, and the Cerebras rate-limit caveat
 
 ## Demo Flow
 
@@ -87,9 +87,9 @@ docker-compose run --rm evals python run_evals.py --suite quality
 | **behavior** | Did the agent call the right MCP tools? Did checkout reach COMPLETED? |
 | **compliance** | Do MCP /tools, A2A JSON-RPC, UCP checkout, and ACP feed match their specs? |
 | **latency** | P50/P95/P99 per MCP tool + A2A round-trip |
-| **quality** | GPT-4o judge scores: helpfulness, accuracy, protocol_awareness, tone (1–5) |
+| **quality** | Cerebras judge scores: helpfulness, accuracy, protocol_awareness, tone (1–5) |
 
-> **Heads up — rate limits.** The agent and the quality judge call GPT-4o via GitHub Models, whose free tier allows ~50 requests/day (rolling 24h). A full `--suite all` run plus live demoing can exhaust it; when that happens the LLM-dependent suites fail with a `429`. See [docs/evals.md](docs/evals.md#rate-limits) for details and how to run off the cap.
+> **Heads up — rate limits.** The agent and the quality judge call a model via Cerebras inference. Free-tier keys have per-minute and per-day request/token caps; a full `--suite all` run plus live demoing can exhaust them, and the LLM-dependent suites then fail with a `429`. See [docs/evals.md](docs/evals.md#rate-limits) for details and how to run off the cap.
 
 ## Repo Structure
 
@@ -119,7 +119,7 @@ docker-compose.yml
 └───────────────────────┬─────────────────────────────────────┘
                         │ A2A (JSON-RPC 2.0)
 ┌───────────────────────▼─────────────────────────────────────┐
-│              Merchant Agent (GPT-4o)                         │
+│              Merchant Agent (Cerebras)                       │
 │   /.well-known/agent-card.json  ·  /.well-known/ucp          │
 │   /ucp/checkout/{id}            ·  /ws/trace (WebSocket)     │
 └──────────┬────────────────────────────────┬─────────────────┘
@@ -136,7 +136,7 @@ docker-compose.yml
 
 ## Tech Stack
 
-Python 3.13 + FastAPI + APScheduler · React 18 + TypeScript · GPT-4o via GitHub AI · pytest + rich · Reveal.js 5.x · Docker Compose
+Python 3.13 + FastAPI + APScheduler · React 18 + TypeScript · Cerebras inference · pytest + rich · Reveal.js 5.x · Docker Compose
 
 ## Resources
 

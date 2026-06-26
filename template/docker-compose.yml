@@ -11,7 +11,8 @@ services:
     ports:
       - "10999:10999"
     environment:
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+      - CEREBRAS_MODEL=${CEREBRAS_MODEL:-gpt-oss-120b}
       - MCP_SERVER_URL=http://mcp-server:8001
       - AGENT_BASE_URL=http://localhost:10999
     depends_on:

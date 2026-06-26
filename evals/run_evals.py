@@ -215,8 +215,8 @@ def _print_quality_results(r: dict):
         console.print(f"[red]{results['failed']} case(s) could not be graded — FAIL.[/red]")
     if results.get("rate_limited"):
         console.print(
-            "[yellow]Looks rate-limited: GitHub Models free tier is ~50 GPT-4o requests/day "
-            "(rolling 24h). Wait for reset or use an OpenAI/Azure key, then re-run.[/yellow]"
+            "[yellow]Looks rate-limited by Cerebras. Wait for the quota to reset or use a "
+            "different CEREBRAS_API_KEY / model, then re-run.[/yellow]"
         )
 
 

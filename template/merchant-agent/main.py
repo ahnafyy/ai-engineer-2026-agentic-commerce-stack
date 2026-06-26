@@ -7,7 +7,7 @@ What it does:
   - Speaks the A2A protocol (JSON-RPC 2.0) at POST /a2a
   - Publishes an Agent Card at /.well-known/agent-card.json
   - Publishes a UCP profile at /.well-known/ucp
-  - Drives a GPT-4o tool-calling loop that calls your MCP server
+  - Drives a Cerebras tool-calling loop that calls your MCP server
   - Implements the UCP checkout lifecycle (REST) used by the chat UI:
         POST /ucp/checkout/{id}/complete   -> READY_FOR_PAYMENT
         POST /ucp/checkout/{id}/confirm    -> COMPLETED + AP2 token
@@ -19,7 +19,9 @@ To make it yours:
   3. Keep OPENAI_TOOLS in sync with the tools your MCP server exposes.
 
 Env vars:
-  GITHUB_TOKEN    GitHub PAT with read:packages (calls GPT-4o via GitHub AI Models)
+  CEREBRAS_API_KEY   Cerebras API key (calls the model via Cerebras inference)
+  CEREBRAS_MODEL     default gpt-oss-120b
+  CEREBRAS_BASE_URL  default https://api.cerebras.ai/v1
   MCP_SERVER_URL  default http://mcp-server:8001
   AGENT_BASE_URL  default http://localhost:10999
 
@@ -42,14 +44,16 @@ app = FastAPI(title="My Store Agent", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-GITHUB_TOKEN   = os.environ.get("GITHUB_TOKEN", "")
+CEREBRAS_API_KEY  = os.environ.get("CEREBRAS_API_KEY", "")
+CEREBRAS_BASE_URL = os.environ.get("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
+CEREBRAS_MODEL    = os.environ.get("CEREBRAS_MODEL", "gpt-oss-120b")
 MCP_SERVER     = os.environ.get("MCP_SERVER_URL", "http://mcp-server:8001")
 AGENT_BASE_URL = os.environ.get("AGENT_BASE_URL", "http://localhost:10999")
 MERCHANT_HOST  = "my-store.demo"
 
 openai_client = AsyncOpenAI(
-    base_url="https://models.inference.ai.azure.com",
-    api_key=GITHUB_TOKEN,
+    base_url=CEREBRAS_BASE_URL,
+    api_key=CEREBRAS_API_KEY,
 )
 
 # In-memory task + checkout stores
@@ -152,7 +156,7 @@ Protocol context (for transparency in the demo):
 - Payments use AP2 (Agent Payments Protocol) with agentic payment tokens.
 """
 
-# ── GPT-4o tool definitions (mirror of MCP tools) ──────────────────────────────
+# ── Cerebras tool definitions (mirror of MCP tools) ──────────────────────────────
 OPENAI_TOOLS = [
     {"type": "function", "function": {
         "name": "product_search",
@@ -259,12 +263,12 @@ async def handle_tool_call(name: str, args: dict, task_id: str) -> str:
 
 
 async def run_agent(messages: list, task_id: str) -> tuple[str, list]:
-    """Run GPT-4o with a tool-calling loop. Returns (final_text, tool_events)."""
+    """Run the model with a tool-calling loop. Returns (final_text, tool_events)."""
     tool_events = []
     msgs = list(messages)
     for _ in range(8):  # max 8 tool rounds
         response = await openai_client.chat.completions.create(
-            model="gpt-4o", messages=msgs, tools=OPENAI_TOOLS, tool_choice="auto", max_tokens=1024,
+            model=CEREBRAS_MODEL, messages=msgs, tools=OPENAI_TOOLS, tool_choice="auto", max_tokens=1024,
         )
         msg = response.choices[0].message
         if not msg.tool_calls:

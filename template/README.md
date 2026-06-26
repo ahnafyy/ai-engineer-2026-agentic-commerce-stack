@@ -13,7 +13,7 @@ Demo store: **My Store** 🛍️ — a generic shop you replace with your own.
 | Service | Port | What it does |
 |---|---|---|
 | `chat-client` | 3000 | React UI + 6-tab Protocol Inspector (A2A · MCP · UCP · ACP · Payment · ⚡ Timeline) |
-| `merchant-agent` | 10999 | GPT-4o agent. A2A JSON-RPC, UCP checkout, AP2 token, `/ws/trace` WebSocket |
+| `merchant-agent` | 10999 | Cerebras agent. A2A JSON-RPC, UCP checkout, AP2 token, `/ws/trace` WebSocket |
 | `mcp-server` | 8001 | 12 MCP tools over an inline sample catalog (no external DB needed) |
 
 Unlike the full demo, this template has **no `catalog-sync` service** — the catalog
@@ -22,7 +22,7 @@ lives inline in `mcp-server/main.py` so the stack runs with as few moving parts 
 ## Quick start
 
 ```bash
-cp .env.example .env        # add your GITHUB_TOKEN (read:packages scope)
+cp .env.example .env        # add your CEREBRAS_API_KEY
 docker-compose up --build
 ```
 
@@ -42,7 +42,7 @@ uvicorn main:app --port 8001
 
 # 2. Merchant agent (new terminal)
 cd merchant-agent && pip install -r requirements.txt
-GITHUB_TOKEN=... MCP_SERVER_URL=http://localhost:8001 uvicorn main:app --port 10999
+CEREBRAS_API_KEY=... MCP_SERVER_URL=http://localhost:8001 uvicorn main:app --port 10999
 
 # 3. Chat client (new terminal)
 cd chat-client && npm install
@@ -67,7 +67,7 @@ REACT_APP_AGENT_URL=http://localhost:10999 npm start
 ## Protocol map
 
 ```
-Chat UI ──A2A (JSON-RPC 2.0)──▶ Merchant Agent (GPT-4o)
+Chat UI ──A2A (JSON-RPC 2.0)──▶ Merchant Agent (Cerebras)
                                   │
                                   ├──MCP tool calls──▶ MCP Server (inline catalog)
                                   │

@@ -17,11 +17,11 @@ if [[ -f "$ENV_FILE" ]]; then
   set -a; source "$ENV_FILE"; set +a
   ok "Loaded $ENV_FILE"
 else
-  warn ".env not found — GITHUB_TOKEN may be unset (agent LLM calls will fail)"
+  warn ".env not found — CEREBRAS_API_KEY may be unset (agent LLM calls will fail)"
 fi
 
-if [[ -z "$GITHUB_TOKEN" ]]; then
-  warn "GITHUB_TOKEN is not set — the merchant agent won't be able to call GPT-4o"
+if [[ -z "$CEREBRAS_API_KEY" ]]; then
+  warn "CEREBRAS_API_KEY is not set — the merchant agent won't be able to call the model"
 fi
 
 # ── Python venv ───────────────────────────────────────────────────────────────
@@ -66,7 +66,8 @@ log "Starting merchant agent on :10999..."
 cd "$ROOT/demo/merchant-agent"
 MCP_SERVER_URL=http://localhost:8001 \
 AGENT_BASE_URL=http://localhost:10999 \
-GITHUB_TOKEN="$GITHUB_TOKEN" \
+CEREBRAS_API_KEY="$CEREBRAS_API_KEY" \
+CEREBRAS_MODEL="${CEREBRAS_MODEL:-gpt-oss-120b}" \
   "$VENV/bin/uvicorn" main:app --port 10999 --reload --log-level warning &
 PIDS+=($!)
 ok "Merchant agent PID ${PIDS[-1]}"

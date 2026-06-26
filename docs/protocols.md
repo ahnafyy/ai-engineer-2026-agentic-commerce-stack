@@ -64,7 +64,7 @@ Request:
 
 The response carries the reply in `result.artifacts[0].parts[0].text`, the tools the agent fired in `result.metadata.tool_events[].tool`, and (on a buy) `result.metadata.checkout_id`. The exact shape is documented in [architecture.md](architecture.md#a2a-response-shape).
 
-> **Error mode:** if the GPT-4o call fails, the agent replies HTTP 200 with a JSON-RPC `error` object (no `result`). Always branch on `error` before reading `result`.
+> **Error mode:** if the LLM call fails, the agent replies HTTP 200 with a JSON-RPC `error` object (no `result`). Always branch on `error` before reading `result`.
 
 ---
 

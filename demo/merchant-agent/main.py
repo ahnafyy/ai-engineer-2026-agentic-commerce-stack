@@ -3,7 +3,7 @@ Purrfect Bites Cat Bakery — Merchant Agent
 - Speaks A2A Protocol (JSON-RPC 2.0)
 - Implements UCP extension (checkout, fulfillment, discount)
 - Calls MCP server internally for tool execution
-- Uses GPT-4o via GitHub AI / Azure endpoint
+- Uses Cerebras inference (OpenAI-compatible API)
 """
 import os, json, uuid, time, asyncio, httpx
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
@@ -23,13 +23,15 @@ app.add_middleware(
 )
 
 # ── Config ────────────────────────────────────────────────────────────────────
-GITHUB_TOKEN  = os.environ.get("GITHUB_TOKEN", "")
+CEREBRAS_API_KEY  = os.environ.get("CEREBRAS_API_KEY", "")
+CEREBRAS_BASE_URL = os.environ.get("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
+CEREBRAS_MODEL    = os.environ.get("CEREBRAS_MODEL", "gpt-oss-120b")
 MCP_SERVER    = os.environ.get("MCP_SERVER_URL", "http://mcp-server:8001")
 AGENT_BASE_URL = os.environ.get("AGENT_BASE_URL", "http://localhost:10999")
 
 openai_client = AsyncOpenAI(
-    base_url="https://models.inference.ai.azure.com",
-    api_key=GITHUB_TOKEN,
+    base_url=CEREBRAS_BASE_URL,
+    api_key=CEREBRAS_API_KEY,
 )
 
 # In-memory task + checkout store
@@ -128,7 +130,7 @@ async def call_mcp_tool(tool_name: str, tool_input: dict) -> dict:
                               json={"name": tool_name, "input": tool_input})
         return r.json()
 
-# GPT-4o tool definitions (mirror of MCP tools)
+# Cerebras tool definitions (mirror of MCP tools)
 OPENAI_TOOLS = [
     {
         "type": "function",
@@ -337,13 +339,13 @@ async def handle_tool_call(name: str, args: dict, task_id: str) -> str:
 
 # ── Run agent conversation ────────────────────────────────────────────────────
 async def run_agent(messages: list, task_id: str) -> tuple[str, list]:
-    """Run GPT-4o with tool calling loop. Returns (final_text, tool_events)."""
+    """Run the model with a tool calling loop. Returns (final_text, tool_events)."""
     import traceback
     tool_events = []
     msgs        = list(messages)
 
     print(f"\n{'='*60}")
-    print(f"[RUN_AGENT START] task_id={task_id} GITHUB_TOKEN={'SET' if GITHUB_TOKEN else 'MISSING'}")
+    print(f"[RUN_AGENT START] task_id={task_id} CEREBRAS_API_KEY={'SET' if CEREBRAS_API_KEY else 'MISSING'}")
     print(f"  openai base_url={openai_client.base_url}")
     print(f"{'='*60}")
 
@@ -357,7 +359,7 @@ async def run_agent(messages: list, task_id: str) -> tuple[str, list]:
 
         try:
             response = await openai_client.chat.completions.create(
-                model="gpt-4o",
+                model=CEREBRAS_MODEL,
                 messages=msgs,
                 tools=OPENAI_TOOLS,
                 tool_choice="auto",
@@ -567,7 +569,7 @@ async def confirm_checkout(checkout_id: str, request: Request):
         "merchant_scope":    "purrfect-bites.demo",
         "max_amount":        c["total"],
         "currency":          "USD",
-        "expires_at":        "2026-05-05T23:59:59Z",
+        "expires_at":        "2026-07-02T23:59:59Z",
         "single_use":        True,
         "revocation_url":    f"https://pay.agent/revoke/{token_id}",
         "user_consent_proof":"vc:credential:aiengineer26_demo",
