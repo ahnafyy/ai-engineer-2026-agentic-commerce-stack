@@ -13,7 +13,7 @@ Demo store: **My Store** 🛍️ — a generic shop you replace with your own.
 | Service | Port | What it does |
 |---|---|---|
 | `chat-client` | 3000 | React UI + 6-tab Protocol Inspector (A2A · MCP · UCP · ACP · Payment · ⚡ Timeline) |
-| `merchant-agent` | 10999 | Cerebras agent. A2A JSON-RPC, UCP checkout, AP2 token, `/ws/trace` WebSocket |
+| `merchant-agent` | 10999 | Merchant agent. A2A JSON-RPC, UCP checkout, AP2 token, `/ws/trace` WebSocket |
 | `mcp-server` | 8001 | 12 MCP tools over an inline sample catalog (no external DB needed) |
 
 Unlike the full demo, this template has **no `catalog-sync` service** — the catalog

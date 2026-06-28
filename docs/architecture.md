@@ -8,7 +8,7 @@ This stack models a real merchant's agentic-commerce surface as four small servi
 |---|---|---|---|
 | `demo/catalog-sync` | 8002 | FastAPI + APScheduler | Pretends to be the merchant's PIM/ERP. Reads `data/products.json` and republishes it as three competing feed formats (ACP, UCP, Meta) on a 60s schedule. |
 | `demo/mcp-server` | 8001 | FastAPI | Exposes the catalog and checkout as **MCP tools**. Has **no hardcoded catalog** — it pulls the live ACP feed from catalog-sync with a 5-second TTL cache. |
-| `demo/merchant-agent` | 10999 | FastAPI + OpenAI SDK | The **Cerebras agent** (OpenAI-compatible API). Speaks A2A (JSON-RPC) to clients, calls MCP tools, drives the UCP checkout lifecycle, issues AP2 tokens, and broadcasts a live event trace over a WebSocket. |
+| `demo/merchant-agent` | 10999 | FastAPI + OpenAI SDK | The **merchant agent** (powered by Cerebras via OpenAI-compatible API). Speaks A2A (JSON-RPC) to clients, calls MCP tools, drives the UCP checkout lifecycle, issues AP2 tokens, and broadcasts a live event trace over a WebSocket. |
 | `demo/chat-client` | 3000 | React 18 + TypeScript | Chat UI plus a 6-tab Protocol Inspector (A2A, MCP, UCP, ACP, Payment, ⚡ Timeline). |
 
 ### Environment variables

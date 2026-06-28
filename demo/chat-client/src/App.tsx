@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './App.css';
 
 const AGENT_URL = process.env.REACT_APP_AGENT_URL || 'http://localhost:10999';
@@ -277,64 +279,26 @@ type Tab = 'mcp' | 'a2a' | 'ucp' | 'acp' | 'payment' | 'timeline';
 
 const ACP_SIMULATION: ProtocolEvent[] = [
   {
-    id: 'acp1', type: 'acp', title: 'Step 1 — Submit Product Feed', timestamp: '--:--:--',
-    intent: 'Both ACP (OpenAI) and UCP (Google) are feed-first: discovery starts with a structured product feed you submit before any checkout integration.',
+    id: 'acp1', type: 'acp', title: 'Background — Product Feed Submitted', timestamp: '--:--:--',
+    intent: 'ACP is feed-first. Before any checkout can happen, the merchant submits a structured product feed so the AI surface can index the catalog.',
     data: {
-      note: 'SIMULATED — reflects public ACP + UCP documentation',
-      step: 1,
-      description: 'Merchant submits a structured product feed to OpenAI (chatgpt.com/merchants) and/or to Google Merchant Center. The AI surface indexes the catalog from this feed.',
+      note: 'SIMULATED — catalog-sync publishes this feed on a 60s schedule',
+      feed_endpoint: 'http://localhost:8002/feed/acp',
       feed_record_example: {
-        id: 'prod_001', title: 'Paw Print Shortbread', description: 'Buttery shortbread cookies stamped with cute cat paw prints',
+        id: 'prod_001', title: 'Paw Print Shortbread',
         price: { value: 4.99, currency: 'USD' }, availability: 'in_stock',
-        image_url: 'https://example.com/images/prod_001.jpg',
-        native_commerce: true  // UCP: opts product into agentic checkout on Google AI surfaces
       },
-      delivery_options: ['file_upload (recommended for full catalog — daily snapshot)', 'API upsert (for incremental updates and promotions)']
     }
   },
   {
-    id: 'acp2', type: 'acp', title: 'Step 2 — AI Indexes & Surfaces Products', timestamp: '--:--:--',
-    intent: 'ChatGPT / Gemini indexes the feed. Users discover products through the AI surface — no live product-search endpoint is called at query time.',
+    id: 'acp2', type: 'acp', title: 'Waiting — Ask to buy something to see live ACP checkout events', timestamp: '--:--:--',
+    intent: 'When you tell the agent you want to buy a product, it calls create_checkout_session via MCP. Live ACP events will replace this simulation.',
     data: {
-      note: 'SIMULATED',
-      step: 2,
-      description: 'When a user asks ChatGPT or Gemini about products, the AI searches its indexed catalog (from the feed). The merchant does not receive a real-time query.',
-      user_query: 'show me cat cookies under $6',
-      ai_surface: 'searches own indexed catalog from submitted feed',
-      result_shown_to_user: { title: 'Paw Print Shortbread', price: '$4.99', availability: 'In stock', buy_link: 'enabled (native_commerce: true)' }
-    }
-  },
-  {
-    id: 'acp3', type: 'acp', title: 'Step 3 — Checkout Initiated', timestamp: '--:--:--',
-    intent: 'User clicks buy. For UCP: Google calls your 3 REST checkout endpoints. For ACP: checkout details not yet fully public — OpenAI is building this out.',
-    data: {
-      note: 'SIMULATED',
-      step: 3,
-      ucp_checkout_flow: {
-        step_1: 'POST /checkout/sessions  — create session with line items',
-        step_2: 'PATCH /checkout/sessions/{id} — add shipping + payment token from Google Pay wallet',
-        step_3: 'POST /checkout/sessions/{id}/complete — finalize order'
-      },
-      payment_token_source: 'Google Pay wallet credential — NOT tied to a specific PSP. Merchant processes it with their own payment provider.'
-    }
-  },
-  {
-    id: 'acp4', type: 'acp', title: 'ACP vs UCP — Key Differences', timestamp: '--:--:--',
-    intent: 'Both require a product feed. The difference is in checkout ownership and openness.',
-    data: {
-      acp_openai: {
-        discovery: 'feed submitted to OpenAI (chatgpt.com/merchants)',
-        spec: 'closed — OpenAI defines and controls it',
-        checkout: 'OpenAI-managed checkout (details still being rolled out)',
-        surfaces: 'ChatGPT only'
-      },
-      ucp_google: {
-        discovery: 'product feed via Google Merchant Center (native_commerce: true attribute)',
-        spec: 'open standard — ucp.dev, Apache 2.0',
-        checkout: '3 REST endpoints on your own server; you stay Merchant of Record',
-        payment_handler: 'Google Pay (wallet credential — PSP is your choice)',
-        surfaces: 'Google AI Mode, Gemini'
-      }
+      note: 'Try: "add Paw Print Shortbread to my cart"',
+      what_will_appear: [
+        'ACP: POST /checkout_sessions',
+        'ACP: POST /checkout_sessions/{id}/complete',
+      ]
     }
   },
 ];
@@ -381,7 +345,7 @@ function InspectorPanel({ events, checkout, agentInfo, traceEvents }: {
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ color: 'var(--green)', fontSize: '0.85rem', marginBottom: 6 }}>🔧 Model Context Protocol</h3>
               <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                Tool calls fired by the Cerebras agent to the MCP server at <code style={{ color: 'var(--green)', fontSize: '0.65rem' }}>localhost:8001</code>. Each tool call is a structured function invocation with typed input/output.
+                Tool calls fired by the merchant agent to the MCP server at <code style={{ color: 'var(--green)', fontSize: '0.65rem' }}>localhost:8001</code>. Each tool call is a structured function invocation with typed input/output.
               </p>
             </div>
             {events.filter(e => e.type === 'mcp').length === 0 ? (
@@ -586,6 +550,7 @@ export default function App() {
   const [traceEvents, setTraceEvents] = useState<TraceEvent[]>([]);
   const bottomRef                     = useRef<HTMLDivElement>(null);
   const wsRef                         = useRef<WebSocket | null>(null);
+  const lastSyncRef                   = useRef<string | null>(null);
 
   // WebSocket trace stream
   useEffect(() => {
@@ -624,6 +589,36 @@ export default function App() {
   }, []);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, loading]);
+
+  // Poll catalog-sync for sync events → inject into timeline
+  useEffect(() => {
+    const CATALOG_URL = AGENT_URL.replace(':10999', ':8002');
+    const poll = async () => {
+      try {
+        const [statusRes, feedRes] = await Promise.all([
+          axios.get(`${CATALOG_URL}/status`),
+          axios.get(`${CATALOG_URL}/feed/acp`).catch(() => null),
+        ]);
+        const syncAt: string | null = statusRes.data?.last_sync_at ?? null;
+        if (syncAt && syncAt !== lastSyncRef.current) {
+          lastSyncRef.current = syncAt;
+          const products: string[] = (feedRes?.data?.products ?? []).map((p: any) => p.title).filter(Boolean);
+          const count = statusRes.data?.feeds?.acp?.count ?? products.length;
+          setTraceEvents(prev => [...prev.slice(-199), {
+            timestamp: new Date(syncAt).getTime() / 1000,
+            type: 'system',
+            event: 'catalog_sync',
+            message: `${count} products synced`,
+            products,
+            last_sync_at: syncAt,
+          }]);
+        }
+      } catch {}
+    };
+    poll();
+    const id = setInterval(poll, 5000);
+    return () => clearInterval(id);
+  }, []);
 
   const addEvent = useCallback((ev: Omit<ProtocolEvent, 'id' | 'timestamp'>) => {
     setEvents(prev => [...prev, { ...ev, id: uid(), timestamp: ts() }]);
@@ -768,7 +763,11 @@ export default function App() {
             {messages.map(msg => (
               <div key={msg.id} className={`message ${msg.role}`}>
                 <div className="message-role">{msg.role === 'user' ? '👤 You' : '🐱 Ginny (Bakery Agent)'}</div>
-                <div className="message-bubble">{msg.text}</div>
+                <div className="message-bubble">
+                  {msg.role === 'agent'
+                    ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                    : msg.text}
+                </div>
                 {msg.checkout && msg.checkout.state !== 'COMPLETED' && (
                   <CheckoutCard checkout={msg.checkout} onUpdate={handleCheckoutUpdate} />
                 )}

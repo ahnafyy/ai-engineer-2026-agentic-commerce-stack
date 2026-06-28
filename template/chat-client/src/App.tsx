@@ -381,7 +381,7 @@ function InspectorPanel({ events, checkout, agentInfo, traceEvents }: {
             <div style={{ marginBottom: 16 }}>
               <h3 style={{ color: 'var(--green)', fontSize: '0.85rem', marginBottom: 6 }}>🔧 Model Context Protocol</h3>
               <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                Tool calls fired by the Cerebras agent to the MCP server at <code style={{ color: 'var(--green)', fontSize: '0.65rem' }}>localhost:8001</code>. Each tool call is a structured function invocation with typed input/output.
+                Tool calls fired by the merchant agent to the MCP server at <code style={{ color: 'var(--green)', fontSize: '0.65rem' }}>localhost:8001</code>. Each tool call is a structured function invocation with typed input/output.
               </p>
             </div>
             {events.filter(e => e.type === 'mcp').length === 0 ? (

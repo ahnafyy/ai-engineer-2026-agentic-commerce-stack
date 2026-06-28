@@ -18,7 +18,7 @@ docker-compose up --build
 | Service | URL | What it does |
 |---|---|---|
 | Chat UI + Protocol Inspector | http://localhost:3000 | React UI with 6 inspector tabs including real-time Timeline |
-| Merchant Agent (A2A + UCP + WS) | http://localhost:10999 | Cerebras agent, A2A JSON-RPC, WebSocket trace |
+| Merchant Agent (A2A + UCP + WS) | http://localhost:10999 | Merchant agent, A2A JSON-RPC, WebSocket trace |
 | MCP Server | http://localhost:8001 | 12 MCP tools, live catalog from catalog-sync |
 | Catalog Sync (ETL batch job) | http://localhost:8002 | ACP + UCP + Meta feed publisher, 60s schedule |
 
@@ -26,7 +26,13 @@ docker-compose up --build
 
 ### Run without Docker
 
-No Docker? Use the launcher — it creates a `.venv`, installs deps, and starts catalog-sync, the MCP server, the merchant agent, and the React dev server, all wired to `localhost`:
+On a fresh Mac with only Homebrew and Git, run the setup script first to install Docker, Node, and Python:
+
+```bash
+./scripts/setup.sh          # installs Docker Desktop, Node 20, Python 3.13 + 3.11
+```
+
+Then use the launcher — it creates a `.venv`, installs deps, and starts catalog-sync, the MCP server, the merchant agent, and the React dev server, all wired to `localhost`:
 
 ```bash
 cp .env.example .env        # add your CEREBRAS_API_KEY
@@ -69,6 +75,7 @@ curl -X POST http://localhost:8001/tools/call \
 
 ## Running Evals
 
+**With Docker:**
 ```bash
 # All suites
 docker-compose run --rm evals python run_evals.py --suite all --report
@@ -80,6 +87,15 @@ docker-compose run --rm evals python run_evals.py --suite latency
 docker-compose run --rm evals python run_evals.py --suite quality
 
 # Results saved to evals/results/<timestamp>.json
+```
+
+**Without Docker** (requires `app-start.sh` already running):
+```bash
+./scripts/run-evals.sh          # all suites
+./scripts/run-evals.sh behavior
+./scripts/run-evals.sh compliance
+./scripts/run-evals.sh latency
+./scripts/run-evals.sh quality
 ```
 
 | Eval Suite | What it checks |

@@ -14,7 +14,7 @@ Deep-dive docs for **The Agentic Commerce Stack**. For setup and the demo script
 demo/
   catalog-sync/    ETL batch service — publishes ACP + UCP + Meta feeds        (:8002)
   mcp-server/      MCP tool server — reads the live ACP feed (5s TTL cache)    (:8001)
-  merchant-agent/  Cerebras agent — A2A + UCP + AP2 + /ws/trace WebSocket       (:10999)
+  merchant-agent/  Merchant agent — A2A + UCP + AP2 + /ws/trace WebSocket        (:10999)
   chat-client/     React UI + 6-tab Protocol Inspector                         (:3000)
 evals/             behavior · compliance · latency · quality  + run_evals.py
 template/          Fork-me starter kit (generic "My Store")
