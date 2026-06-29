@@ -1,0 +1,25 @@
+---
+description: Template-wide overview for the agentic commerce stack
+alwaysApply: true
+---
+
+# Agentic Commerce Stack — Starter Template
+
+This template is a complete, working starter kit for the full protocol stack: **MCP**, **A2A**, **UCP**, **ACP**, and **AP2**.
+
+## Services
+
+| Service | Port | What it does |
+|---|---|---|
+| `chat-client` | 3000 | React UI + Protocol Inspector |
+| `merchant-agent` | 10999 | Merchant agent with A2A, UCP checkout, AP2 token, and `/ws/trace` |
+| `mcp-server` | 8001 | MCP tools over an inline sample catalog |
+
+## Run locally
+
+```bash
+cp .env.example .env
+docker-compose up --build
+```
+
+For area-specific guidance, use the rules for `merchant-agent`, `mcp-server`, `chat-client`, and `evals`.

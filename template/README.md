@@ -104,17 +104,15 @@ python evals/run_evals.py --suite quality
 Customize `evals/behavior/test_behavior.py` (replace `"Classic Tee"` with a real product)
 and `evals/quality/judge_quality.py` (`TEST_CASES` and `JUDGE_SYSTEM`) for your store.
 
-## Copilot instruction files
+## AI coding assistant support
 
-The `.vscode/` directory contains GitHub Copilot instruction files that guide AI-assisted
-development for each part of the stack. They are automatically applied when you work on
-the relevant files.
+The template includes editor and agent instruction files for multiple AI coding tools.
 
-| File | When it applies |
-|---|---|
-| `.vscode/merchant-agent.instructions.md` | Editing `merchant-agent/` — system prompt patterns, adding tools end-to-end |
-| `.vscode/customer-agent.instructions.md` | Editing `chat-client/` — A2A protocol, multi-turn, reading tool events |
-| `.vscode/product-feed.instructions.md` | Editing `mcp-server/` — product format, ACP/UCP/Meta feed formats |
-| `.vscode/evals.instructions.md` | Editing `evals/` — writing tests, multi-turn patterns, debugging failures |
+| Tool | File location | How to activate |
+|---|---|---|
+| VS Code Copilot | `.vscode/*.instructions.md` | Open or edit files in the matching area of the template |
+| Claude Code | `CLAUDE.md` and `*/CLAUDE.md` | Open the repo root so Claude loads `CLAUDE.md` and its `@.../CLAUDE.md` imports |
+| Cursor | `.cursor/rules/*.mdc` | Open any file in the relevant folder so the matching rule is picked up |
+| Windsurf | `.windsurf/rules/*.md` | Open any file in the relevant folder so the matching rule is applied |
 
 Built from the [Agentic Commerce Stack](https://github.com/ahnafyy/ai-engineer-2026-agentic-commerce-stack).
