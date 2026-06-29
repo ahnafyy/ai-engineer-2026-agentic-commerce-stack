@@ -123,6 +123,9 @@ evals/
   quality/            LLM judge scorecard
   run_evals.py        CLI runner (--suite, --report)
 template/             Starter kit — fork this to build your own stack
+  evals/              Same 4 suites, pre-wired for localhost, ready to customize
+  .vscode/            GitHub Copilot instruction files (merchant-agent, customer-agent,
+                       product-feed, evals) — applied automatically when editing each area
 slides/index.html     Reveal.js engineering deck (20 min)
 docker-compose.yml
 ```

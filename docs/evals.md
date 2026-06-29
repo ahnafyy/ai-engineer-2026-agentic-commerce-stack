@@ -86,6 +86,17 @@ When that happens:
 
 **To get a clean run:** wait for the per-minute window to reset (or pace the suites), then run `--suite all` once. To raise the ceiling, upgrade the Cerebras plan or use a higher-tier key, or set `CEREBRAS_MODEL` to a model with more headroom.
 
+## Template evals (`template/evals/`)
+
+The `template/` starter kit ships the same four suites pre-wired for `localhost`. Key differences from `evals/`:
+
+- No `catalog-sync` dependency — `compliance/test_compliance.py` skips catalog feed checks.
+- `AGENT_URL` defaults to `http://localhost:10999`, `MCP_URL` to `http://localhost:8001`.
+- `quality/judge_quality.py` and `behavior/test_behavior.py` contain `TODO` comments marking the product names and test cases you should replace with your own catalog.
+- No `scripts/run-evals.sh` wrapper — run directly: `python evals/run_evals.py --suite all`.
+
+See `.vscode/evals.instructions.md` in the template for a guide on writing tests, multi-turn checkout patterns, and debugging failures.
+
 ## Adding a case
 
 - **behavior:** add a method to a `Test*` class in `behavior/test_behavior.py`; assert on `_tool_names(resp)` or the UCP checkout result.

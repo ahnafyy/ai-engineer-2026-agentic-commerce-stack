@@ -45,8 +45,8 @@ ok "Eval deps ready"
 # ── Run evals ─────────────────────────────────────────────────────────────────
 log "Running suite: $SUITE"
 cd "$ROOT/evals"
-AGENT_BASE_URL=http://localhost:10999 \
-MCP_SERVER_URL=http://localhost:8001 \
+AGENT_URL=http://localhost:10999 \
+MCP_URL=http://localhost:8001 \
 CATALOG_SYNC_URL=http://localhost:8002 \
 CEREBRAS_API_KEY="$CEREBRAS_API_KEY" \
 CEREBRAS_MODEL="${CEREBRAS_MODEL:-gpt-oss-120b}" \

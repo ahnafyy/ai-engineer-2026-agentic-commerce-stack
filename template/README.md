@@ -74,4 +74,47 @@ Chat UI ──A2A (JSON-RPC 2.0)──▶ Merchant Agent (Cerebras)
                                   └──UCP checkout / AP2 token──▶ Chat UI checkout card
 ```
 
+## Running evals
+
+The `evals/` directory contains four test suites that run against a live stack.
+
+```bash
+# Install eval dependencies
+pip install -r evals/requirements.txt
+
+# Run all suites (stack must be running)
+python evals/run_evals.py --suite all
+
+# Run a single suite
+python evals/run_evals.py --suite behavior
+python evals/run_evals.py --suite compliance
+python evals/run_evals.py --suite latency
+python evals/run_evals.py --suite quality
+```
+
+| Suite | What it checks |
+|---|---|
+| `behavior` | Agent calls the correct MCP tools for each user intent |
+| `compliance` | A2A + MCP endpoints return valid schemas |
+| `latency` | p50 / p95 / p99 response times |
+| `quality` | LLM judge scores responses 1–5 on helpfulness, accuracy, protocol, tone |
+
+> `quality` requires `CEREBRAS_API_KEY` — it uses a second Cerebras call as the judge.
+
+Customize `evals/behavior/test_behavior.py` (replace `"Classic Tee"` with a real product)
+and `evals/quality/judge_quality.py` (`TEST_CASES` and `JUDGE_SYSTEM`) for your store.
+
+## Copilot instruction files
+
+The `.vscode/` directory contains GitHub Copilot instruction files that guide AI-assisted
+development for each part of the stack. They are automatically applied when you work on
+the relevant files.
+
+| File | When it applies |
+|---|---|
+| `.vscode/merchant-agent.instructions.md` | Editing `merchant-agent/` — system prompt patterns, adding tools end-to-end |
+| `.vscode/customer-agent.instructions.md` | Editing `chat-client/` — A2A protocol, multi-turn, reading tool events |
+| `.vscode/product-feed.instructions.md` | Editing `mcp-server/` — product format, ACP/UCP/Meta feed formats |
+| `.vscode/evals.instructions.md` | Editing `evals/` — writing tests, multi-turn patterns, debugging failures |
+
 Built from the [Agentic Commerce Stack](https://github.com/ahnafyy/ai-engineer-2026-agentic-commerce-stack).

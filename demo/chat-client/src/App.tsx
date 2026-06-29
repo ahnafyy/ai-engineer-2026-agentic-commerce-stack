@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import './App.css';
 
 const AGENT_URL = process.env.REACT_APP_AGENT_URL || 'http://localhost:10999';
@@ -275,7 +273,7 @@ function TimelineItem({ ev }: { ev: TraceEvent }) {
 }
 
 // ── Inspector Tabs ─────────────────────────────────────────────────────────────
-type Tab = 'mcp' | 'a2a' | 'ucp' | 'acp' | 'payment' | 'timeline';
+type Tab = 'mcp' | 'a2a' | 'ucp' | 'acp' | 'payment' | 'timeline' | 'feeds';
 
 const ACP_SIMULATION: ProtocolEvent[] = [
   {
@@ -310,6 +308,27 @@ function InspectorPanel({ events, checkout, agentInfo, traceEvents }: {
   traceEvents: TraceEvent[];
 }) {
   const [tab, setTab] = useState<Tab>('a2a');
+  const [feedData, setFeedData] = useState<Record<string, any | null>>({ acp: null, ucp: null, meta: null });
+  const [activeFeed, setActiveFeed] = useState<'acp' | 'ucp' | 'meta'>('acp');
+  const [feedLoading, setFeedLoading] = useState(false);
+
+  const CATALOG_URL = AGENT_URL.replace(':10999', ':8002');
+
+  const refreshFeeds = async () => {
+    setFeedLoading(true);
+    try {
+      const [acp, ucp, meta] = await Promise.all([
+        axios.get(`${CATALOG_URL}/feed/acp`).then(r => r.data).catch(() => null),
+        axios.get(`${CATALOG_URL}/feed/ucp`).then(r => r.data).catch(() => null),
+        axios.get(`${CATALOG_URL}/feed/meta`).then(r => r.data).catch(() => null),
+      ]);
+      setFeedData({ acp, ucp, meta });
+    } finally {
+      setFeedLoading(false);
+    }
+  };
+
+  useEffect(() => { if (tab === 'feeds') refreshFeeds(); }, [tab]);
 
   const countByType = (t: string) => events.filter(e => e.type === t).length;
   const tabs: Array<{ id: Tab; label: string; color: string }> = [
@@ -319,6 +338,7 @@ function InspectorPanel({ events, checkout, agentInfo, traceEvents }: {
     { id: 'acp',      label: '📋 ACP',      color: 'var(--pink)' },
     { id: 'payment',  label: '💳 Payment',  color: 'var(--gold)' },
     { id: 'timeline', label: '⚡ Timeline', color: '#FF9A3C' },
+    { id: 'feeds',    label: '📦 Feeds',    color: '#4ECDC4' },
   ];
 
   const checkoutState = checkout?.state || ('none' as any);
@@ -443,44 +463,77 @@ function InspectorPanel({ events, checkout, agentInfo, traceEvents }: {
             : checkout?.state === 'READY_FOR_PAYMENT' ? 'READY_FOR_PAYMENT'
             : checkout ? 'NOT_READY_FOR_PAYMENT' : null;
           const acpStates = ['NOT_READY_FOR_PAYMENT', 'READY_FOR_PAYMENT', 'COMPLETED'] as const;
-          if (acpEvents.length > 0) {
-            return (
-              <>
-                <div style={{ marginBottom: 12, padding: '10px 14px', background: 'rgba(255,110,199,0.08)', border: '1px solid var(--pink)', borderRadius: 10 }}>
-                  <p style={{ fontSize: '0.72rem', color: 'var(--pink)', fontWeight: 600, marginBottom: 4 }}>📋 Live ACP Checkout (spec/2026-04-17)</p>
-                  <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                    These are real ACP checkout operations from this conversation, transported via MCP. Each call follows the <strong style={{color:'var(--pink)'}}>Agentic Commerce Protocol</strong> spec by OpenAI &amp; Stripe.
-                  </p>
-                </div>
-                {acpState && (
-                  <div className="state-machine" style={{ marginBottom: 16 }}>
-                    {acpStates.map((s, i) => (
-                      <React.Fragment key={s}>
-                        {i > 0 && <span className="state-arrow">→</span>}
-                        <div className={`state-node ${
-                          acpState === s ? 'active' :
-                          acpStates.indexOf(acpState) > i ? 'done' : ''
-                        }`} style={{ borderColor: 'var(--pink)', ...(acpState === s ? { color: 'var(--pink)', background: 'rgba(255,110,199,0.06)' } : {}) }}>{s}</div>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                )}
-                {acpEvents.map(ev => <EventCard key={ev.id} ev={ev} />)}
-              </>
-            );
-          }
           return (
             <>
-              <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(255,110,199,0.08)', border: '1px solid var(--pink)', borderRadius: 10 }}>
-                <p style={{ fontSize: '0.72rem', color: 'var(--pink)', fontWeight: 600, marginBottom: 4 }}>📋 ACP Integration Flow</p>
+              <div style={{ marginBottom: 12, padding: '10px 14px', background: 'rgba(255,110,199,0.08)', border: '1px solid var(--pink)', borderRadius: 10 }}>
+                <p style={{ fontSize: '0.72rem', color: 'var(--pink)', fontWeight: 600, marginBottom: 4 }}>📋 {acpEvents.length > 0 ? 'Live ACP Checkout (spec/2026-04-17)' : 'ACP Integration Flow'}</p>
                 <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                  ACP (Agentic Commerce Protocol) by OpenAI &amp; Stripe. Start a checkout to see live ACP events here. Below is the documented integration path for context.
+                  {acpEvents.length > 0
+                    ? <>Real ACP checkout operations from this conversation via MCP. Each call follows the <strong style={{color:'var(--pink)'}}>Agentic Commerce Protocol</strong> spec by OpenAI &amp; Stripe.</>
+                    : <>ACP (Agentic Commerce Protocol) by OpenAI &amp; Stripe. Start a checkout to see live events here.</>}
                 </p>
               </div>
-              {ACP_SIMULATION.map(ev => <EventCard key={ev.id} ev={ev} />)}
+              {acpState && (
+                <div className="state-machine" style={{ marginBottom: 16 }}>
+                  {acpStates.map((s, i) => (
+                    <React.Fragment key={s}>
+                      {i > 0 && <span className="state-arrow">→</span>}
+                      <div className={`state-node ${
+                        acpState === s ? 'active' :
+                        acpStates.indexOf(acpState) > i ? 'done' : ''
+                      }`} style={{ borderColor: 'var(--pink)', ...(acpState === s ? { color: 'var(--pink)', background: 'rgba(255,110,199,0.06)' } : {}) }}>{s}</div>
+                    </React.Fragment>
+                  ))}
+                </div>
+              )}
+              {acpEvents.length > 0
+                ? acpEvents.map(ev => <EventCard key={ev.id} ev={ev} />)
+                : ACP_SIMULATION.map(ev => <EventCard key={ev.id} ev={ev} />)}
             </>
           );
         })()}
+
+        {/* Feeds Tab */}
+        {tab === 'feeds' && (
+          <>
+            <div style={{ marginBottom: 12 }}>
+              <h3 style={{ color: '#4ECDC4', fontSize: '0.85rem', marginBottom: 6 }}>📦 Live Product Feeds</h3>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                Live catalog feed published by <code style={{ color: '#4ECDC4', fontSize: '0.65rem' }}>catalog-sync :8002</code> every 60s. Select a feed format to inspect.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14, alignItems: 'center' }}>
+              {(['acp', 'ucp', 'meta'] as const).map(f => (
+                <button key={f} onClick={() => setActiveFeed(f)} style={{
+                  padding: '4px 12px', borderRadius: 6, border: '1px solid',
+                  borderColor: activeFeed === f ? '#4ECDC4' : 'var(--border)',
+                  background: activeFeed === f ? 'rgba(78,205,196,0.12)' : 'var(--bg-elevated)',
+                  color: activeFeed === f ? '#4ECDC4' : 'var(--text-muted)',
+                  fontSize: '0.68rem', fontFamily: 'JetBrains Mono, monospace',
+                  cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.06em',
+                }}>{f}</button>
+              ))}
+              <button onClick={refreshFeeds} disabled={feedLoading} style={{
+                marginLeft: 'auto', padding: '4px 10px', borderRadius: 6,
+                border: '1px solid var(--border)', background: 'var(--bg-elevated)',
+                color: 'var(--text-muted)', fontSize: '0.65rem', cursor: 'pointer',
+              }}>{feedLoading ? '…' : '↺ Refresh'}</button>
+            </div>
+            {feedData[activeFeed] ? (
+              <>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: 8, fontFamily: 'JetBrains Mono, monospace' }}>
+                  {(feedData[activeFeed]?.products ?? feedData[activeFeed]?.data ?? []).length} products · <code style={{ color: '#4ECDC4' }}>GET /feed/{activeFeed}</code>
+                </div>
+                <ColorJson data={feedData[activeFeed]} />
+              </>
+            ) : (
+              <div className="inspector-empty">
+                <div className="icon">📦</div>
+                <p>Feed not available. Make sure catalog-sync is running on :8002.</p>
+              </div>
+            )}
+          </>
+        )}
 
         {/* Timeline Tab */}
         {tab === 'timeline' && (
@@ -763,11 +816,7 @@ export default function App() {
             {messages.map(msg => (
               <div key={msg.id} className={`message ${msg.role}`}>
                 <div className="message-role">{msg.role === 'user' ? '👤 You' : '🐱 Ginny (Bakery Agent)'}</div>
-                <div className="message-bubble">
-                  {msg.role === 'agent'
-                    ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
-                    : msg.text}
-                </div>
+                <div className="message-bubble">{msg.text}</div>
                 {msg.checkout && msg.checkout.state !== 'COMPLETED' && (
                   <CheckoutCard checkout={msg.checkout} onUpdate={handleCheckoutUpdate} />
                 )}

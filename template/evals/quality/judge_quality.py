@@ -1,17 +1,18 @@
 """
 LLM Quality Evals — Cerebras model as judge.
-======================================
-Sends predefined prompts to the agent, then uses a Cerebras model to score each
-response on 4 dimensions (1–5 scale):
+=============================================
+Sends TEST_CASES prompts to your agent, then uses a Cerebras model to score
+each response on 4 dimensions (1–5 scale):
 
   - helpfulness:         Did the agent address the user's actual need?
-  - accuracy:            Was factual information about products/policies correct?
-  - protocol_awareness:  Did the agent correctly invoke the right tools/protocols?
-  - tone:                Was the response warm, on-brand, and appropriately playful?
+  - accuracy:            Were product/policy facts correct?
+  - protocol_awareness:  Did the agent call the right tools in the right order?
+  - tone:                Was the response on-brand for your store?
 
-Prints a scorecard table and outputs RESULTS_JSON:<json> to stdout.
+TODO: Replace TEST_CASES with prompts and products that match YOUR store.
+      Update JUDGE_SYSTEM's "bakery" references to describe YOUR store persona.
 
-Requires: CEREBRAS_API_KEY env var (used for the judge via Cerebras inference)
+Requires: CEREBRAS_API_KEY in the environment.
 """
 import os
 import re
@@ -26,18 +27,19 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-AGENT_URL      = os.environ.get("AGENT_URL",    "http://merchant-agent:10999")
-CEREBRAS_API_KEY  = os.environ.get("CEREBRAS_API_KEY", "")
+AGENT_URL         = os.environ.get("AGENT_URL",         "http://localhost:10999")
+CEREBRAS_API_KEY  = os.environ.get("CEREBRAS_API_KEY",  "")
 CEREBRAS_BASE_URL = os.environ.get("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
-CEREBRAS_MODEL    = os.environ.get("CEREBRAS_MODEL", "gpt-oss-120b")
-TIMEOUT        = 60.0
-console        = Console(stderr=True)
+CEREBRAS_MODEL    = os.environ.get("CEREBRAS_MODEL",    "gpt-oss-120b")
+TIMEOUT           = 60.0
+console           = Console(stderr=True)
 
 judge_client = OpenAI(
     base_url=CEREBRAS_BASE_URL,
     api_key=CEREBRAS_API_KEY,
 ) if CEREBRAS_API_KEY else None
 
+# TODO: Replace these with prompts relevant to YOUR store.
 TEST_CASES = [
     {
         "prompt": "What are your bestselling items?",
@@ -45,35 +47,36 @@ TEST_CASES = [
         "note": "Should list top products with prices",
     },
     {
-        "prompt": "Do you have anything gluten-free?",
-        "expected_tools": ["product_search", "get_product_details"],
-        "note": "Should search and note allergen info",
-    },
-    {
-        "prompt": "What's your return policy if my order is damaged?",
+        "prompt": "What's your return policy?",
         "expected_tools": ["get_store_policy"],
-        "note": "Should accurately state the 24hr return policy",
+        "note": "Should accurately state the return policy",
     },
     {
-        "prompt": "I want to buy 2 Purr-fect Matcha Cookies",
+        "prompt": "Show me what you have in stock",
+        "expected_tools": ["product_search"],
+        "note": "Should call product_search and list items",
+    },
+    {
+        "prompt": "I want to buy a Classic Tee",
         "expected_tools": ["create_checkout_session"],
-        "note": "Should create a checkout session with correct quantity",
+        "note": "Should ask about discount then create checkout",
     },
     {
-        "prompt": "Apply code MEOW20 to my cart",
+        "prompt": "Apply code SAVE10 to my cart",
         "expected_tools": ["apply_discount"],
-        "note": "Should call apply_discount with the code and return savings",
+        "note": "Should call apply_discount and return savings",
     },
 ]
 
+# TODO: update this to describe YOUR store persona instead of "bakery"
 JUDGE_SYSTEM = """You are an expert evaluator for an agentic commerce system.
-You will receive a user prompt sent to a bakery shopping agent, the agent's response, and the MCP tools that were called.
+You will receive a user prompt sent to a shopping agent, the agent's response, and the MCP tools that were called.
 Score the response on these 4 dimensions using integers 1-5:
 
 1. helpfulness (1=useless, 5=fully addressed the need)
 2. accuracy (1=wrong facts, 5=all facts correct)
 3. protocol_awareness (1=wrong tools, 5=exactly right tools in right order)
-4. tone (1=robotic/off-brand, 5=warm, playful, on-brand for a cat bakery)
+4. tone (1=robotic/off-brand, 5=warm, helpful, on-brand)
 
 Return ONLY valid JSON in this exact format:
 {"helpfulness": <int>, "accuracy": <int>, "protocol_awareness": <int>, "tone": <int>, "reasoning": "<one sentence>"}"""
@@ -82,13 +85,12 @@ Return ONLY valid JSON in this exact format:
 def _send(prompt: str) -> dict:
     payload = {
         "jsonrpc": "2.0", "id": str(uuid.uuid4()), "method": "message/send",
-        "params": {"contextId": str(uuid.uuid4()), "message": {"parts": [{"kind": "text", "text": prompt}]}},
+        "params": {"contextId": str(uuid.uuid4()),
+                   "message": {"parts": [{"kind": "text", "text": prompt}]}},
     }
     r = httpx.post(f"{AGENT_URL}/a2a", json=payload, timeout=TIMEOUT)
     r.raise_for_status()
     body = r.json()
-    # The agent returns HTTP 200 with a JSON-RPC error body when the LLM call fails
-    # (e.g. Cerebras rate limit). Surface that as a real failure, not an empty score.
     if body.get("error"):
         msg = body["error"].get("message", body["error"]) if isinstance(body["error"], dict) else body["error"]
         raise RuntimeError(f"agent JSON-RPC error: {msg}")
@@ -99,22 +101,19 @@ def _send(prompt: str) -> dict:
 
 
 def _extract_json(text: str) -> dict:
-    """Robustly extract a JSON object from LLM output that may have markdown fences or extra text."""
-    # Strip markdown code fences
+    """Robustly extract JSON from LLM output — handles markdown fences and preamble."""
     text = re.sub(r"```(?:json)?\s*", "", text).strip().rstrip("`")
-    # Try direct parse
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         pass
-    # Find the first {...} block (handles preamble / postamble text)
     m = re.search(r'\{.*?\}', text, re.DOTALL)
     if m:
         try:
             return json.loads(m.group())
         except json.JSONDecodeError:
             pass
-    raise ValueError(f"No valid JSON object found in judge response: {text[:300]}")
+    raise ValueError(f"No valid JSON found in judge response: {text[:300]}")
 
 
 def _judge(prompt: str, response: str, tools: list[str], expected_tools: list[str]) -> dict:
@@ -130,10 +129,8 @@ def _judge(prompt: str, response: str, tools: list[str], expected_tools: list[st
     try:
         resp = judge_client.chat.completions.create(
             model=CEREBRAS_MODEL,
-            messages=[
-                {"role": "system", "content": JUDGE_SYSTEM},
-                {"role": "user", "content": user_content},
-            ],
+            messages=[{"role": "system", "content": JUDGE_SYSTEM},
+                      {"role": "user", "content": user_content}],
             max_tokens=400, temperature=0,
         )
         return _extract_json(resp.choices[0].message.content.strip())
@@ -150,7 +147,7 @@ def _is_rate_limit(text: str) -> bool:
 if __name__ == "__main__":
     console.rule("[bold cyan]LLM Quality Evals[/bold cyan]")
     if not CEREBRAS_API_KEY:
-        console.print("[red]ERROR: CEREBRAS_API_KEY not set — the judge cannot run. This is a FAILURE, not a pass.[/red]")
+        console.print("[red]ERROR: CEREBRAS_API_KEY not set — judge cannot run.[/red]")
 
     scores = []
     rate_limited = False
@@ -167,18 +164,13 @@ if __name__ == "__main__":
             continue
 
         judgment = _judge(tc["prompt"], agent_out["text"], agent_out["tools"], tc["expected_tools"])
-        avg = round(
-            (judgment.get("helpfulness", 0) + judgment.get("accuracy", 0) +
-             judgment.get("protocol_awareness", 0) + judgment.get("tone", 0)) / 4, 2
-        )
-        # A real judgment is on a 1-5 scale, so avg==0 only happens on an error path
-        # (judge call failed / token missing). Treat that as a failed case, not a 0 score.
+        avg = round((judgment.get("helpfulness", 0) + judgment.get("accuracy", 0) +
+                     judgment.get("protocol_awareness", 0) + judgment.get("tone", 0)) / 4, 2)
         is_error = avg == 0
         rate_limited = rate_limited or _is_rate_limit(judgment.get("reasoning", ""))
         scores.append({"prompt": tc["prompt"], **judgment, "avg": avg, "error": is_error})
-        time.sleep(0.5)  # avoid rate limiting
+        time.sleep(0.5)
 
-    # Table to stderr
     table = Table(title="Quality Scorecard", box=box.ROUNDED)
     table.add_column("Prompt", max_width=35, style="cyan")
     table.add_column("Help", justify="center")
@@ -190,27 +182,19 @@ if __name__ == "__main__":
     for s in scores:
         avg = s.get("avg", 0)
         color = "green" if avg >= 4 else "yellow" if avg >= 3 else "red"
-        table.add_row(
-            s["prompt"][:35], str(s.get("helpfulness", "?")), str(s.get("accuracy", "?")),
-            str(s.get("protocol_awareness", "?")), str(s.get("tone", "?")),
-            f"[{color}]{avg}[/{color}]", s.get("reasoning", "")[:40],
-        )
+        table.add_row(s["prompt"][:35], str(s.get("helpfulness", "?")), str(s.get("accuracy", "?")),
+                      str(s.get("protocol_awareness", "?")), str(s.get("tone", "?")),
+                      f"[{color}]{avg}[/{color}]", s.get("reasoning", "")[:40])
     console.print(table)
 
     failed = [s for s in scores if s.get("error")]
     graded = [s for s in scores if not s.get("error")]
     overall_avg = round(sum(s["avg"] for s in graded) / len(graded), 2) if graded else 0
-    console.print(f"\nGraded {len(graded)}/{len(scores)} cases — overall average: [bold]{overall_avg}[/bold] / 5.0")
-
+    console.print(f"\nGraded {len(graded)}/{len(scores)} — overall average: [bold]{overall_avg}[/bold] / 5.0")
     if failed:
-        console.print(f"[red]{len(failed)} case(s) could not be graded — quality eval FAILED.[/red]")
+        console.print(f"[red]{len(failed)} case(s) could not be graded — FAILED.[/red]")
         if rate_limited:
-            console.print(
-                "[yellow]Cause looks like a Cerebras rate limit. Wait for the quota to reset, "
-                "or point the agent/judge at a different CEREBRAS_API_KEY / model, then re-run.[/yellow]"
-            )
+            console.print("[yellow]Looks like a rate limit — wait and re-run.[/yellow]")
 
     print(f"RESULTS_JSON:{json.dumps({'scores': scores, 'overall_avg': overall_avg, 'failed': len(failed), 'graded': len(graded), 'rate_limited': rate_limited})}")
-
-    # Exit non-zero if any case failed so the runner reports FAIL honestly.
     sys.exit(1 if (failed or not scores) else 0)

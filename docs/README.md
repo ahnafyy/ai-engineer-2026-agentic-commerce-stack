@@ -18,4 +18,7 @@ demo/
   chat-client/     React UI + 6-tab Protocol Inspector                         (:3000)
 evals/             behavior · compliance · latency · quality  + run_evals.py
 template/          Fork-me starter kit (generic "My Store")
+  evals/           Same 4 suites, localhost defaults, with TODO markers for your store
+  .vscode/         Copilot instruction files — merchant-agent, customer-agent,
+                    product-feed, evals — auto-applied when editing each area
 ```

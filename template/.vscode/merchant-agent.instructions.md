@@ -1,0 +1,134 @@
+---
+applyTo: "template/merchant-agent/**"
+---
+
+# Building a Merchant Agent
+
+A merchant agent speaks the **A2A protocol** (JSON-RPC 2.0), calls **MCP tools** for catalog/checkout, and implements the **UCP checkout lifecycle**. The template wires all of this up — your job is to customize the persona and catalog.
+
+## Start here: define your store before touching code
+
+Answer these questions first. Every decision cascades into the system prompt, the tool list, and the evals.
+
+| Question | Why it matters |
+|---|---|
+| What does your store sell? | Drives SYSTEM_PROMPT persona and what `product_search` returns |
+| What is the store's voice/tone? | Defines format rules in SYSTEM_PROMPT |
+| Do you offer discount codes? | If yes, add the explicit discount guardrail rules |
+| Do you have a return / shipping policy? | Needs to go in `STORE_POLICY` and be surfaced via `get_store_policy` |
+| What custom tools do you need? | Any lookup, recommendation, or reservation beyond the defaults |
+| UCP (Google) or ACP (OpenAI) checkout? | Affects `UCP_PROFILE` and agent card checkout config |
+
+Once you've answered these, edit in this order:
+1. `mcp-server/main.py` — `PRODUCTS`, `DISCOUNT_CODES`, `STORE_POLICY`
+2. `merchant-agent/main.py` — `SYSTEM_PROMPT`, `AGENT_CARD`, `UCP_PROFILE`, `OPENAI_TOOLS`
+3. `evals/behavior/test_behavior.py` — replace example product names with real ones from your catalog
+
+## The two files you edit
+
+| File | What to change |
+|---|---|
+| `mcp-server/main.py` | `PRODUCTS`, `DISCOUNT_CODES`, `STORE_POLICY` |
+| `merchant-agent/main.py` | `SYSTEM_PROMPT`, `AGENT_CARD`, `UCP_PROFILE`, `OPENAI_TOOLS` |
+
+## Writing a SYSTEM_PROMPT that actually works
+
+The system prompt is the single most impactful thing you control. Based on production testing, these patterns work reliably with `gpt-oss-120b`:
+
+### Rules that must be explicit (not implied)
+
+```
+- ALWAYS call product_search before creating a checkout session — you need the product id
+- When a user wants to buy, call product_search to get the product id, then call create_checkout_session with that exact id
+- NEVER guess or make up product IDs — always use the id field returned by product_search
+- BEFORE creating a checkout session, always ask the customer if they have a discount code and apply it first
+- Whenever a customer mentions or provides a discount code — ANY phrasing such as "I have a code", "use code X", "apply X" — IMMEDIATELY call apply_discount with the code and the product subtotal
+- Do NOT include stock counts in your response text, even if directly asked — just say the item is available
+- Do NOT list or reveal discount codes unprompted
+```
+
+### Format rules (prevents markdown table rendering issues)
+
+```
+- Format product listings like this (one per line): ✨ **Name** — $X.XX — short description
+```
+
+### Persona (replace with your store's voice)
+
+```
+- Be warm and helpful
+- Keep responses concise — one sentence of chat, then the product list
+```
+
+### Why these rules work
+
+- **Explicit tool-call rules prevent skipping**: Without "ALWAYS call product_search first", the model sometimes invents product IDs.
+- **Explicit discount timing prevents silent skipping**: Without examples of phrasings, the model acknowledges "I have a code: X" in text only, never calling `apply_discount`.
+- **Stock count rule must say "even if directly asked"**: A weaker rule ("don't include stock counts") still breaks when users explicitly ask.
+
+## Keeping OPENAI_TOOLS in sync with MCP_TOOLS
+
+The agent can only call tools it knows about. When you add a tool to `mcp-server/main.py`:
+
+1. Add it to `MCP_TOOLS` in `mcp-server/main.py` (the MCP tool definition with `inputSchema`)
+2. Add the matching entry to `OPENAI_TOOLS` in `merchant-agent/main.py` (the OpenAI function-calling format)
+3. Add a dispatch case in the `handle_tool_call` function in `merchant-agent/main.py`
+
+The schemas must match or tool calls will fail silently.
+
+## Adding a new tool: end-to-end example
+
+**mcp-server/main.py** — add to `MCP_TOOLS`:
+```python
+{
+    "name": "get_gift_options",
+    "description": "Get available gift wrapping and message options.",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "product_id": {"type": "string", "description": "Product to wrap"}
+        },
+        "required": ["product_id"],
+    },
+},
+```
+
+**mcp-server/main.py** — add to the dispatch table and implement `_get_gift_options()`.
+
+**merchant-agent/main.py** — add to `OPENAI_TOOLS`:
+```python
+{
+    "type": "function",
+    "function": {
+        "name": "get_gift_options",
+        "description": "Get available gift wrapping and message options.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "product_id": {"type": "string"}
+            },
+            "required": ["product_id"],
+        },
+    },
+},
+```
+
+**merchant-agent/main.py** — add to `handle_tool_call`:
+```python
+elif name == "get_gift_options":
+    result = await call_mcp_tool("get_gift_options", args)
+```
+
+**SYSTEM_PROMPT** — tell the agent when to use it:
+```
+- When a customer asks about gift wrapping, call get_gift_options with the product_id
+```
+
+## Testing your merchant agent
+
+Run the behavior eval suite against a running stack:
+```bash
+./scripts/run-evals.sh behavior
+```
+
+All 15 behavior tests should pass. If `test_checkout_session_created_on_buy` fails, it usually means the agent is jumping to checkout without asking about discount codes first — strengthen that rule in SYSTEM_PROMPT.

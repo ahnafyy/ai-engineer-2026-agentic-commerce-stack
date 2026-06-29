@@ -105,8 +105,7 @@
                     </ul>
                     <p
                         style="margin-top:24px; font-size:0.52em; color:var(--text-muted);">
-                        This is live today on Google AI Mode (UCP) and rolling
-                        out on ChatGPT (ACP).
+                        This is live today on both Gemini (UCP) and ChatGPT (ACP).
                         <br />The engineering question: <span
                             style="color:var(--cyan)">how does it actually
                             work?</span>
@@ -152,7 +151,7 @@
                             <div>Discovery + checkout</div>
                             <div
                                 style="margin-top:6px; color:var(--pink)">OpenAI
-                                + Stripe · closed</div>
+                                + Stripe · open</div>
                         </div>
                         <div class="protocol-card">
                             <div class="label"
@@ -173,15 +172,15 @@
                                 Payment Protocol</div>
                             <div>Scoped payment mandate</div>
                             <div
-                                style="margin-top:6px; color:var(--gold)">emerging</div>
+                                style="margin-top:6px; color:var(--gold)">Google · open</div>
                         </div>
                     </div>
                     <p
                         style="font-size:0.46em; color:var(--text-muted); margin-top:16px;">ACP
                         and UCP are both trying to own the same thing — how
-                        agents discover and buy from merchants. One is closed
-                        and backed by ChatGPT reach. One is open and already
-                        live on Google AI Mode.</p>
+                        agents discover and buy from merchants. Both are open
+                        specs: ACP backed by OpenAI + Stripe, UCP backed by
+                        Google · ucp.dev.</p>
                     <aside class="notes">
                         [2:00] These 5 protocols compose into a complete stack.
                         MCP handles tool access, A2A handles agent coordination,
@@ -396,53 +395,6 @@
                     </aside>
                 </section>
 
-                <!-- ── 6. ACP vs UCP Checkout ─────────────────────────────────────────────── -->
-                <section>
-                    <h2>ACP vs UCP — checkout mechanics</h2>
-                    <div class="two-col" style="margin-top:16px;">
-                        <div style="font-size:0.48em;">
-                            <h3 style="color:var(--pink);">ACP — OpenAI +
-                                Stripe</h3>
-                            <ul
-                                style="color:var(--text-muted); margin-top:8px; line-height:2;">
-                                <li>Checkout hosted and managed by OpenAI</li>
-                                <li>Merchant is NOT merchant of record</li>
-                                <li>Payment via Stripe infrastructure</li>
-                                <li>Spec: <code>spec/2026-04-17</code></li>
-                                <li>Surfaces: ChatGPT only</li>
-                                <li style="color:var(--pink);">Status: rolling
-                                    out — still forming</li>
-                            </ul>
-                        </div>
-                        <div style="font-size:0.48em;">
-                            <h3 style="color:var(--violet-bright);">UCP —
-                                Google, open spec</h3>
-                            <ul
-                                style="color:var(--text-muted); margin-top:8px; line-height:2;">
-                                <li>3 REST endpoints on <em>your</em>
-                                    server</li>
-                                <li>Merchant stays merchant of record</li>
-                                <li>Payment: Google Pay wallet credential, PSP
-                                    is yours</li>
-                                <li>Spec: ucp.dev (Apache 2.0)</li>
-                                <li>Surfaces: Google AI Mode, Gemini</li>
-                                <li style="color:var(--green);">Status: live
-                                    today</li>
-                            </ul>
-                            <pre
-                                style="font-size:0.9em; margin-top:10px;"><code class="language-bash">POST /checkout/sessions        # create
-PATCH /checkout/sessions/{id}  # add shipping + payment
-POST /checkout/sessions/{id}/complete  # finalize</code></pre>
-                        </div>
-                    </div>
-                    <aside class="notes">
-                        [10:00] Key engineering decision: UCP means you own the
-                        checkout server. ACP means you hand off to OpenAI's
-                        infrastructure. Different trust models, different
-                        revenue share implications, different integration work.
-                    </aside>
-                </section>
-
                 <!-- ── 7. AP2 Token ───────────────────────────────────────────────────────── -->
                 <section>
                     <h2>AP2 <span class="tag tag-ap2">agentic
@@ -505,34 +457,57 @@ POST /checkout/sessions/{id}/complete  # finalize</code></pre>
                 <!-- ── 8. Full Architecture ───────────────────────────────────────────────── -->
                 <section>
                     <h2>Architecture</h2>
-                    <div class="arch-box"
-                        style="margin-top:16px; font-size:0.85em;">
-                        <pre
-                            style="font-size:0.9em; margin:0; background:transparent; box-shadow:none;">┌─────────────────────────────────────────────────────────────┐
-│                  User (Chat / AI Surface)                    │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ A2A  JSON-RPC 2.0
-               ┌────────────▼────────────────────┐
-               │       Merchant Agent            │
-               │  /.well-known/agent-card.json   │
-               │  /ws/trace  ← WebSocket trace   │
-               └──────┬───────────────┬──────────┘
-                      │ MCP           │ UCP / ACP
-          ┌───────────▼──────┐  ┌─────▼──────────────────┐
-          │   MCP Server     │◄─│   Catalog Sync (ETL)    │
-          │  product_search  │  │  /feed/acp  (OpenAI)    │
-          │  checkout_*      │  │  /feed/ucp  (Google)    │
-          └──────────────────┘  │  /feed/meta (Meta)      │
-                                └─────────────────────────┘
-                         AP2 token issued on confirm</pre>
-                    </div>
-                    <div
-                        style="display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
-                        <span class="tag tag-mcp">MCP</span>
-                        <span class="tag tag-a2a">A2A</span>
-                        <span class="tag tag-acp">ACP</span>
-                        <span class="tag tag-ucp">UCP</span>
-                        <span class="tag tag-ap2">AP2</span>
+                    <div style="margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:0; font-size:0.48em;">
+
+                        <!-- User -->
+                        <div style="border:1.5px solid var(--border); border-radius:8px; padding:10px 40px; background:var(--bg-card); color:var(--text); font-family:var(--font-mono); min-width:420px; text-align:center;">
+                            Client-Side Agent
+                        </div>
+
+                        <!-- A2A arrow down -->
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:0; color:var(--cyan);">
+                            <div style="width:1.5px; height:22px; background:var(--cyan);"></div>
+                            <div style="font-size:1em; margin:-2px 0;">▼</div>
+                            <div style="font-size:0.95em; color:var(--cyan); margin-top:-4px; letter-spacing:0.04em;">A2A &nbsp;·&nbsp; JSON-RPC 2.0</div>
+                            <div style="width:1.5px; height:10px; background:var(--cyan);"></div>
+                        </div>
+
+                        <!-- Merchant Agent -->
+                        <div style="border:1.5px solid var(--cyan); border-radius:8px; padding:12px 32px; background:var(--bg-card); text-align:center; min-width:420px;">
+                            <div style="color:var(--cyan); font-weight:700; font-family:var(--font-mono); margin-bottom:4px;">Merchant Agent</div>
+                            <div style="color:var(--text-muted); font-family:var(--font-mono);">/.well-known/agent-card.json &nbsp;·&nbsp; /ws/trace</div>
+                        </div>
+
+                        <!-- Two-branch arrows -->
+                        <div style="display:flex; width:500px; justify-content:space-around; margin-top:0;">
+                            <div style="display:flex; flex-direction:column; align-items:center; color:var(--green);">
+                                <div style="width:1.5px; height:18px; background:var(--green);"></div>
+                                <div style="font-size:0.95em;">▼</div>
+                                <div style="font-size:0.9em; margin-top:-2px;">MCP</div>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:center; color:var(--violet-bright);">
+                                <div style="width:1.5px; height:18px; background:var(--violet-bright);"></div>
+                                <div style="font-size:0.95em;">▼</div>
+                                <div style="font-size:0.9em; margin-top:-2px;">UCP / ACP</div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom two boxes -->
+                        <div style="display:flex; gap:20px;">
+                            <div style="border:1.5px solid var(--green); border-radius:8px; padding:12px 20px; background:var(--bg-card); font-family:var(--font-mono); min-width:190px; text-align:center;">
+                                <div style="color:var(--green); font-weight:700; margin-bottom:4px;">MCP Server</div>
+                                <div style="color:var(--text-muted);">product_search</div>
+                                <div style="color:var(--text-muted);">checkout_*</div>
+                            </div>
+                            <div style="border:1.5px solid var(--violet-bright); border-radius:8px; padding:12px 20px; background:var(--bg-card); font-family:var(--font-mono); min-width:210px; text-align:center;">
+                                <div style="color:var(--violet-bright); font-weight:700; margin-bottom:4px;">Catalog Sync (ETL)</div>
+                                <div style="color:var(--text-muted);">/feed/acp &nbsp;(ChatGPT)</div>
+                                <div style="color:var(--text-muted);">/feed/ucp &nbsp;(Google)</div>
+                                <div style="color:var(--text-muted);">/feed/meta (Meta)</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:14px; font-size:0.9em; color:var(--gold);">AP2 token issued on checkout confirm</div>
                     </div>
                     <aside class="notes">
                         [13:30] This is the full picture. Catalog-sync is the
@@ -610,35 +585,30 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
                 <!-- ── 10. Live Demo ───────────────────────────────────────────────────────── -->
                 <section>
                     <h2>Live: the full stack</h2>
-                    <p
-                        style="font-size:0.52em; color:var(--text-muted); margin-bottom:16px;">Running
-                        on <code style="color:var(--cyan);">docker-compose
-                            up</code></p>
                     <ul class="step-list">
                         <li><span class="step-num">1</span>
-                            <strong>http://localhost:8002/feed/acp</strong> —
-                            live ACP feed. /feed/ucp. /feed/meta. Three specs,
-                            one source.</li>
+                            <strong>Feeds tab</strong> — same product, three
+                            wire formats: ACP (ChatGPT) · UCP (Google) · Meta.
+                            One source of truth.</li>
                         <li><span class="step-num">2</span>
-                            <strong>"show me cookies"</strong> → MCP tab + ⚡
-                            Timeline with latency per tool call</li>
+                            <strong>"show me cookies"</strong> — customer agent
+                            → merchant agent (A2A) → MCP tools · ⚡ Timeline
+                            traces every hop</li>
                         <li><span class="step-num">3</span>
-                            <strong>"add Kitten Mittons to cart"</strong> → A2A
-                            · UCP · ACP tabs light up</li>
-                        <li><span class="step-num">4</span> Complete checkout →
-                            Payment tab shows decoded AP2 token</li>
-                        <li><span class="step-num">5</span> Edit products.json →
-                            POST /sync/trigger → MCP immediately reflects
-                            change</li>
-                        <li><span class="step-num">6</span> <code>docker-compose
-                                run evals python run_evals.py --suite
-                                compliance</code></li>
+                            <strong>"add Kitten Mittons to cart"</strong> —
+                            A2A · UCP · ACP inspector tabs light up</li>
+                        <li><span class="step-num">4</span>
+                            <strong>Checkout</strong> — Payment tab decodes the
+                            AP2 token</li>
+                        <li><span class="step-num">5</span>
+                            <strong>Evals</strong> — behavior · compliance ·
+                            latency · quality scorecards</li>
                     </ul>
                     <aside class="notes">
                         [17:00] 3 minutes of live demo. Prioritize: Timeline tab
-                        (real-time WS trace), the live catalog change, and the
-                        AP2 token. If anything breaks, show the eval output
-                        instead — it tells the same story.
+                        (real-time WS trace), the feed viewer showing all three
+                        format variants, and the AP2 token. If anything breaks,
+                        show the eval output instead — it tells the same story.
                     </aside>
                 </section>
 
@@ -654,8 +624,9 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
                             <ul
                                 style="color:var(--text-muted); line-height:2.2;">
                                 <li>MCP — widely adopted, solid spec</li>
-                                <li>A2A — open, good tooling, agent cards
-                                    work</li>
+                                <li>A2A — widely used, good tooling</li>
+                                <li>ACP checkout — spec live, rolling out on
+                                    ChatGPT</li>
                                 <li>UCP feed (Google Merchant Center) — live on
                                     AI Mode</li>
                                 <li>UCP checkout endpoints — 3 REST calls, clear
@@ -669,9 +640,7 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
                                 forming</h3>
                             <ul
                                 style="color:var(--text-muted); line-height:2.2;">
-                                <li>ACP checkout — spec exists, rollout
-                                    incomplete</li>
-                                <li>AP2 — pattern is clear, no standard yet</li>
+                                <li>AP2 — actual usage by merchants</li>
                                 <li>ACP vs UCP convergence — or continued
                                     fragmentation?</li>
                                 <li>Identity + consent standards across
@@ -699,10 +668,7 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
                                 github.com/ahnafyy/<br />
                                 ai-engineer-2026-agentic-commerce-stack
                             </p>
-                            <p
-                                style="font-size:0.46em; color:var(--text-muted); margin-top:12px;">
-                                GitHub template repo — click "Use this template"
-                            </p>
+
                         </div>
                         <div
                             style="margin-top:20px; font-size:0.48em; display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:left;">
