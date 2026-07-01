@@ -601,9 +601,16 @@ export default function App() {
   const [agentInfo, setAgentInfo]     = useState<object | null>(null);
   const [agentOnline, setAgentOnline] = useState(false);
   const [traceEvents, setTraceEvents] = useState<TraceEvent[]>([]);
+  const [theme, setTheme]             = useState<'dark' | 'light'>(() => (localStorage.getItem('theme') as 'dark' | 'light') || 'dark');
   const bottomRef                     = useRef<HTMLDivElement>(null);
   const wsRef                         = useRef<WebSocket | null>(null);
   const lastSyncRef                   = useRef<string | null>(null);
+
+  // Theme persistence
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // WebSocket trace stream
   useEffect(() => {
@@ -806,6 +813,9 @@ export default function App() {
           <span>{agentOnline ? 'Agent online' : 'Agent offline'}</span>
           <span style={{ color: 'var(--border)' }}>|</span>
           <span>AI Engineer 2026 · July 2, 2026</span>
+          <button className="theme-toggle" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} title="Toggle light/dark mode">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
         </div>
       </div>
 

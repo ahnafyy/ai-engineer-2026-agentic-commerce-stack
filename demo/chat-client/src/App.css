@@ -150,6 +150,46 @@ html, body, #root { height: 100%; background: var(--bg-deep); color: var(--text-
 
 * { scrollbar-width: thin; scrollbar-color: var(--violet) var(--bg-card); }
 
+/* Theme toggle button */
+.theme-toggle {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+  line-height: 1;
+}
+.theme-toggle:hover { border-color: var(--violet-bright); }
+
+/* ── Light mode ──────────────────────────────────────────────────────────────── */
+html[data-theme="light"] {
+  --bg-deep:       #FFFFFF;
+  --bg-card:       #F0EDF6;
+  --bg-elevated:   #E5E0EF;
+  --violet:        #7B2FBE;
+  --violet-bright: #6B21A8;
+  --violet-glow:   rgba(123,47,190,0.15);
+  --cyan:          #0891B2;
+  --gold:          #B45309;
+  --pink:          #BE185D;
+  --green:         #15803D;
+  --red:           #DC2626;
+  --text-primary:  #1A1130;
+  --text-muted:    #4B5563;
+  --border:        rgba(123,47,190,0.25);
+}
+
+/* Fix hardcoded rgba values that don't update via variables */
+html[data-theme="light"] .message-bubble code { background: rgba(123,47,190,0.1); }
+html[data-theme="light"] .message-bubble pre { background: rgba(0,0,0,0.06); }
+html[data-theme="light"] .message-bubble tbody tr:nth-child(even) { background: rgba(0,0,0,0.03); }
+html[data-theme="light"] .message-bubble thead th { background: rgba(123,47,190,0.12); }
+html[data-theme="light"] .intent-label { background: rgba(123,47,190,0.08); }
+html[data-theme="light"] .confirm-btn { color: #ffffff; }
+
 /* Cat paw background \u2014 subtle repeating pattern, never disturbs the UI */
 body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg transform='rotate(-20 70 70)' fill='%237B2FBE' opacity='0.055'%3E%3Cellipse cx='70' cy='90' rx='19' ry='16'/%3E%3Cellipse cx='45' cy='60' rx='10' ry='12'/%3E%3Cellipse cx='70' cy='53' rx='10' ry='12'/%3E%3Cellipse cx='95' cy='60' rx='10' ry='12'/%3E%3C/g%3E%3C/svg%3E");

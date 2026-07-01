@@ -330,3 +330,50 @@
 /* --- Reveal.js theme required vars --- */
 section.has-dark-background, section.has-dark-background h1,
 section.has-dark-background h2, section.has-dark-background h3 { color: var(--text-primary); }
+
+/* ── Light mode ─────────────────────────────────────────────────────────────── */
+body.light-mode {
+  --bg-deep:       #FFFFFF;
+  --bg-card:       #F0EDF6;
+  --bg-elevated:   #E5E0EF;
+  --violet:        #7B2FBE;
+  --violet-bright: #6B21A8;
+  --violet-glow:   rgba(123,47,190,0.15);
+  --cyan:          #0891B2;
+  --cyan-dim:      rgba(8,145,178,0.15);
+  --gold:          #B45309;
+  --pink:          #BE185D;
+  --green:         #15803D;
+  --text-primary:  #1A1130;
+  --text-muted:    #4B5563;
+  --border:        rgba(123,47,190,0.25);
+}
+
+/* Remove dark radial gradients from viewport */
+body.light-mode .reveal-viewport {
+  background: #FFFFFF;
+  background-image: none;
+}
+
+/* Remove heading glow (looks bad on white) */
+body.light-mode .reveal h1,
+body.light-mode .reveal h2,
+body.light-mode .reveal h3,
+body.light-mode .reveal h4 { text-shadow: none; }
+
+/* Remove glow utility classes text-shadows */
+body.light-mode .glow-cyan,
+body.light-mode .glow-violet,
+body.light-mode .glow-gold,
+body.light-mode .glow-pink { text-shadow: none; }
+
+/* Code blocks: keep readable dark bg on light slides */
+body.light-mode .reveal code { background: var(--bg-card); color: var(--violet-bright); }
+body.light-mode .reveal pre  { background: var(--bg-card); box-shadow: none; }
+
+/* Override hardcoded neon tag colors from index.html <style> block */
+body.light-mode .tag-mcp { color: #15803D !important; border-color: #15803D !important; background: rgba(21,128,61,0.10) !important; }
+body.light-mode .tag-a2a { color: #0891B2 !important; border-color: #0891B2 !important; background: rgba(8,145,178,0.10) !important; }
+body.light-mode .tag-acp { color: #BE185D !important; border-color: #BE185D !important; background: rgba(190,24,93,0.10) !important; }
+body.light-mode .tag-ucp { color: #6B21A8 !important; border-color: #6B21A8 !important; background: rgba(107,33,168,0.10) !important; }
+body.light-mode .tag-ap2 { color: #B45309 !important; border-color: #B45309 !important; background: rgba(180,83,9,0.10) !important; }

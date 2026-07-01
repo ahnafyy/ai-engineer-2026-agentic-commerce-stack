@@ -41,6 +41,30 @@
     .step-list { list-style: none; padding: 0; }
     .step-list li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.52em; display: flex; align-items: flex-start; gap: 10px; }
     .step-num { color: var(--cyan); font-family: var(--font-mono); font-weight: 700; min-width: 24px; }
+
+    /* Theme toggle button */
+    #theme-toggle {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 9999;
+      background: rgba(30, 13, 66, 0.85);
+      border: 1px solid rgba(123,47,190,0.5);
+      border-radius: 10px;
+      padding: 6px 13px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #F0E6FF;
+      line-height: 1;
+      backdrop-filter: blur(6px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #theme-toggle:hover { border-color: #9D4EDD; }
+    body.light-mode #theme-toggle {
+      background: rgba(240, 237, 246, 0.92);
+      border-color: rgba(123,47,190,0.35);
+      color: #1A1130;
+    }
   </style>
     </head>
     <body>
@@ -85,7 +109,167 @@
                     </aside>
                 </section>
 
-                <!-- ── 1. What Already Works ──────────────────────────────────────────────── -->
+                <!-- ── 0b. Origin Story ───────────────────────────────────────────────────── -->
+                <section>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:24px; padding: 0 40px;">
+                        <img src="assets/Youngme.jpg" alt="Young Ahnaf at a computer"
+                            style="height:300px; border-radius:14px; border:1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.4);" />
+                        <div style="text-align:center;">
+                            <p style="font-size:0.36em; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;">circa 2003 · dhaka, bangladesh</p>
+                            <p style="font-size:0.58em; line-height:1.9; color:var(--text); font-style:italic; max-width:780px;">
+                                "Ever since I was a young boi, I dreamed of
+                                <span style="color:var(--cyan); font-style:normal;">high-throughput inference</span> —
+                                <span style="color:var(--green); font-style:normal;">harnessing</span> my
+                                <span style="color:var(--green); font-style:normal;">tools</span>
+                                within a <span style="color:var(--violet-bright); font-style:normal;">context window</span>,
+                                kept in check with <span style="color:var(--gold); font-style:normal;">evals</span>,
+                                powered by <span style="color:var(--pink); font-style:normal;">frontier models</span>."
+                            </p>
+                            <p style="font-size:0.42em; color:var(--text-muted); margin-top:14px; letter-spacing:0.04em;">
+                                — me, apparently, at age 8
+                            </p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [0:20] Quick origin story. I've been thinking about how to get computers
+                        to do more with less since I was a kid. Turns out the industry just needed
+                        20 years and $500B in compute to catch up.
+                    </aside>
+                </section>
+
+                <!-- ── 1. What is Agentic Commerce ───────────────────────────────────────── -->
+                <section>
+                    <h2>What is agentic commerce?</h2>
+                    <p style="font-size:0.52em; color:var(--text-muted); margin-bottom:20px;">
+                        A spectrum — not a binary. The question is how much of the loop the human still owns.
+                    </p>
+                    <div class="two-col" style="margin-top:8px; gap:20px;">
+                        <div style="background:var(--bg-card); border:2px solid var(--violet); border-radius:12px; padding:20px; position:relative;">
+                            <div style="position:absolute; top:-12px; left:16px; background:var(--violet); color:#fff; font-size:0.38em; font-weight:700; padding:3px 10px; border-radius:20px;">WHERE WE ARE NOW</div>
+                            <div style="font-size:0.6em; font-weight:700; color:var(--violet-bright); margin-bottom:10px;">Human in the loop</div>
+                            <ul style="font-size:0.46em; color:var(--text-muted); line-height:1.9; padding-left:1em;">
+                                <li>Agent surfaces products and pre-fills the cart</li>
+                                <li>Human reviews and confirms before payment</li>
+                                <li>Protocols (ACP, UCP, AP2) are built for this today</li>
+                                <li style="color:var(--text-muted); opacity:0.6;">e.g. "find me cat cookies under $6" → agent presents, you tap Buy</li>
+                            </ul>
+                        </div>
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px;">
+                            <div style="font-size:0.6em; font-weight:700; color:var(--cyan); margin-bottom:10px;">Autonomous shopping</div>
+                            <ul style="font-size:0.46em; color:var(--text-muted); line-height:1.9; padding-left:1em;">
+                                <li>Agent decides <em>what</em> to buy, <em>when</em>, and <em>how much</em></li>
+                                <li>Executes checkout and payment without prompting</li>
+                                <li>Runs on schedules or triggers — no human in the flow</li>
+                                <li style="color:var(--text-muted); opacity:0.6;">e.g. auto-reorder household supplies when stock drops</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p style="font-size:0.44em; color:var(--text-muted); margin-top:18px;">
+                        The stack I'm walking through today is designed for the left column —
+                        but it's being built to support the right one.
+                    </p>
+                    <aside class="notes">
+                        [0:45] Before the protocols, let's be clear about where we actually are.
+                        Autonomous commerce — agent buys without asking you — is the end state
+                        everyone is building toward. But right now, humans are still in the loop.
+                        The agent surfaces the product, maybe pre-fills the cart, and you confirm.
+                        The entire ACP and UCP spec today is optimized for that handoff moment.
+                        AP2 exists precisely because you want a scoped mandate — the agent can't
+                        spend freely, it needs your pre-authorized token.
+                    </aside>
+                </section>
+
+                <!-- ── 3. AI Controls the Browser ─────────────────────────────────────────── -->
+                <section>
+                    <h2>The first attempt: AI controls your browser</h2>
+                    <p style="font-size:0.52em; color:var(--text-muted); margin-bottom:20px;">
+                        The obvious path to human-in-the-loop commerce — let the AI drive the same browser a human would use.
+                    </p>
+                    <div class="two-col" style="gap:20px; margin-top:8px;">
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                            <div style="font-size:0.55em; font-weight:700; color:var(--cyan); margin-bottom:10px;">How it works</div>
+                            <ul style="font-size:0.46em; color:var(--text-muted); line-height:1.9; padding-left:1em;">
+                                <li>AI takes screenshots, reads the DOM, clicks elements</li>
+                                <li>Navigates to merchant sites like a human would</li>
+                                <li>Fills forms, adds to cart, proceeds to checkout</li>
+                                <li>You watch or confirm at the end</li>
+                            </ul>
+                            <div style="font-size:0.46em; color:var(--text-muted); margin-top:12px; line-height:1.6;">
+                                <span style="color:var(--cyan)">Examples:</span> Claude Computer Use chrome extension,
+                                Atlas browser
+                            </div>
+                        </div>
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px;">
+                            <div style="font-size:0.55em; font-weight:700; color:var(--pink); margin-bottom:10px;">Why it's clunky</div>
+                            <ul style="font-size:0.46em; color:var(--text-muted); line-height:1.9; padding-left:1em;">
+                                <li>Slow — every step is a vision + reasoning round-trip</li>
+                                <li>Brittle — a UI redesign breaks the whole flow</li>
+                                <li>No structured data — scraping prices and stock is error-prone</li>
+                                <li>CAPTCHAs, login walls, session timeouts</li>
+                                <li>Not composable — every site is a bespoke automation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p style="font-size:0.44em; color:var(--text-muted); margin-top:18px;">
+                        It works as a demo. It doesn't scale. The industry needed a better primitive.
+                    </p>
+                    <aside class="notes">
+                        [1:15] This was the first instinct — just let the AI do what a human does.
+                        Claude's computer use, Atlas, Operator all went this direction.
+                        The demos are impressive. The production reality is painful.
+                        You're one A/B test away from a broken checkout flow.
+                        The industry needed a protocol layer, not a smarter mouse.
+                    </aside>
+                </section>
+
+                <!-- ── 4. Surfaces Where It Actually Works ────────────────────────────────── -->
+                <section>
+                    <h2>Where it actually works</h2>
+                    <p style="font-size:0.52em; color:var(--text-muted); margin-bottom:20px;">
+                        A few platforms skipped the browser entirely and built structured commerce surfaces.
+                        Agents talk to APIs, not pixels.
+                    </p>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top:8px;">
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                            <div style="font-size:0.55em; font-weight:700; color:var(--pink); margin-bottom:8px;">ChatGPT Shopping</div>
+                            <div style="font-size:0.44em; color:var(--text-muted); line-height:1.7;">
+                                Powered by <strong style="color:var(--text)">ACP</strong>.<br />
+                                Merchant submits a product feed.<br />
+                                ChatGPT's agent surfaces results.<br />
+                                Checkout via ACP checkout API —<br />no browser, no scraping.
+                            </div>
+                        </div>
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                            <div style="font-size:0.55em; font-weight:700; color:var(--violet-bright); margin-bottom:8px;">Google AI Mode</div>
+                            <div style="font-size:0.44em; color:var(--text-muted); line-height:1.7;">
+                                Powered by <strong style="color:var(--text)">UCP</strong>.<br />
+                                Supplemental feed to Merchant Center.<br />
+                                Gemini agents handle discovery.<br />
+                                Native checkout eligibility flag<br />unlocks buy-without-leaving.
+                            </div>
+                        </div>
+                        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                            <div style="font-size:0.55em; font-weight:700; color:#E8A87C; margin-bottom:8px;">& more emerging surfaces</div>
+                            <ul style="font-size:0.44em; color:var(--text-muted); line-height:1.9; padding-left:1em; margin:0;">
+                                <li>Instagram / Facebook Shopping</li>
+                                <li>Microsoft Copilot</li>
+                                <li>Independent registries<br /><span style="opacity:0.7;">e.g. ucpplayground.com</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p style="font-size:0.44em; color:var(--text-muted); margin-top:18px;">
+                        The pattern is the same across all three: <strong style="color:var(--cyan)">structured feed in, protocol-driven checkout out</strong>.
+                        That's the stack we're building.
+                    </p>
+                    <aside class="notes">
+                        [1:45] These three platforms solved the problem by not using a browser at all.
+                        Feed submission replaces scraping. Checkout APIs replace form filling.
+                        The human still confirms — but the agent does all the work through clean interfaces.
+                        This is the pattern. Now let me show you the protocols that make it possible.
+                    </aside>
+                </section>
+
+                <!-- ── 5. What Already Works ──────────────────────────────────────────────── -->
                 <section>
                     <h2>Agents are already shopping</h2>
                     <ul class="step-list" style="margin-top:20px;">
@@ -304,21 +488,23 @@
 
                 <!-- ── 5. The Feed Problem ────────────────────────────────────────────────── -->
                 <section>
-                    <h2>The publisher side</h2>
+                    <h2 style="margin-bottom:4px;">Product Feed</h2>
                     <p
-                        style="font-size:0.52em; color:var(--text-muted); margin-bottom:16px;">
-                        Both ACP and UCP are <strong
-                            style="color:var(--cyan)">feed-first</strong>.
-                        Agents don't query your catalog live — they search a
-                        pre-indexed feed submitted by the merchant. Three
-                        surfaces, three formats.
+                        style="font-size:0.48em; color:var(--text-muted); margin-bottom:8px;">
+                        You'd assume this is a <strong
+                            style="color:var(--cyan)">search catalog MCP call</strong> —
+                        the agent queries your server, you return live results. That's
+                        not what's happening. Both ACP and UCP are <strong
+                            style="color:var(--pink)">feed-first</strong>:
+                        you submit a pre-indexed feed to the platform, and the platform's
+                        own search layer handles discovery. Three surfaces, three formats.
                     </p>
-                    <div class="feed-grid">
-                        <div class="feed-card">
+                    <div class="feed-grid" style="margin-top:10px;">
+                        <div class="feed-card" style="padding:8px;">
                             <h4 style="color:var(--pink)">ACP <span
                                     style="color:var(--text-muted); font-size:0.8em;">OpenAI</span></h4>
                             <pre
-                                style="font-size:0.9em; margin:0;"><code class="language-json">{
+                                style="font-size:0.82em; margin:0;"><code class="language-json">{
   "id": "prod_001",
   "title": "Paw Print Shortbread",
   "variants": [{
@@ -338,11 +524,11 @@
                                 via file upload or API upsert to
                                 chatgpt.com/merchants</p>
                         </div>
-                        <div class="feed-card">
+                        <div class="feed-card" style="padding:8px;">
                             <h4 style="color:var(--violet-bright)">UCP <span
                                     style="color:var(--text-muted); font-size:0.8em;">Google</span></h4>
                             <pre
-                                style="font-size:0.9em; margin:0;"><code class="language-json">{
+                                style="font-size:0.82em; margin:0;"><code class="language-json">{
   "id": "prod_001",
   "title": "Paw Print Shortbread",
   "price": {
@@ -358,10 +544,10 @@
                                 style="color:var(--text-muted); margin-top:6px;">Supplemental
                                 feed to Google Merchant Center</p>
                         </div>
-                        <div class="feed-card">
+                        <div class="feed-card" style="padding:8px;">
                             <h4 style="color:#E8A87C">Meta</h4>
                             <pre
-                                style="font-size:0.9em; margin:0;"><code class="language-json">{
+                                style="font-size:0.82em; margin:0;"><code class="language-json">{
   "id": "prod_001",
   "title": "Paw Print Shortbread",
   "availability": "in stock",
@@ -376,7 +562,7 @@
                         </div>
                     </div>
                     <p
-                        style="font-size:0.44em; color:var(--text-muted); margin-top:14px;">
+                        style="font-size:0.42em; color:var(--text-muted); margin-top:8px;">
                         This repo's <code
                             style="color:var(--cyan)">catalog-sync</code>
                         service runs on a 60s schedule, reads from a single
@@ -384,12 +570,16 @@
                         to protocol fragmentation.
                     </p>
                     <aside class="notes">
-                        [8:00] This is the unglamorous engineering reality.
-                        Three surfaces, three feed specs. If you want your
-                        products on ChatGPT, Google AI Mode, and Instagram
-                        Shopping, you need three pipelines. The catalog-sync
-                        service in this repo does all three from one source of
-                        truth.
+                        [8:00] The intuition is wrong here. Most engineers assume
+                        ACP and UCP work like MCP — the agent calls product_search
+                        on your server and you return live results. That's not it.
+                        Both platforms run their own search index. You submit a
+                        feed, they ingest it, and their agent-side search queries
+                        *their* index — not yours. Your server is never in the
+                        hot path for discovery.
+                        This is the unglamorous engineering reality: three surfaces,
+                        three feed specs. The catalog-sync service in this repo
+                        does all three from one source of truth.
                         Live demo: hit /feed/acp, /feed/ucp, /feed/meta and show
                         the diff.
                     </aside>
@@ -400,9 +590,17 @@
                     <h2>AP2 <span class="tag tag-ap2">agentic
                             payment</span></h2>
                     <p
-                        style="font-size:0.5em; color:var(--text-muted); margin-bottom:16px;">A
+                        style="font-size:0.5em; color:var(--text-muted); margin-bottom:12px;">A
                         scoped, time-limited, single-use payment mandate. The
                         agent carries this token — not a card number.</p>
+                    <div style="display:flex; gap:12px; margin-bottom:14px;">
+                        <div style="flex:1; font-size:0.42em; padding:8px 12px; background:rgba(255,110,199,0.08); border:1px solid rgba(255,110,199,0.3); border-radius:8px; color:var(--text-muted); line-height:1.7;">
+                            <span style="color:var(--pink); font-weight:700;">ChatGPT (ACP)</span> — today payment only flows through <strong style="color:var(--text);">shared payment token vendors</strong> (e.g. Stripe, Shopify Payments). AP2 is the spec for what comes next.
+                        </div>
+                        <div style="flex:1; font-size:0.42em; padding:8px 12px; background:rgba(157,78,221,0.08); border:1px solid rgba(157,78,221,0.3); border-radius:8px; color:var(--text-muted); line-height:1.7;">
+                            <span style="color:var(--violet-bright); font-weight:700;">Gemini (UCP)</span> — today payment only via <strong style="color:var(--text);">Google Pay</strong>. Scoped mandate tokens are the roadmap.
+                        </div>
+                    </div>
                     <div class="two-col">
                         <div>
                             <pre
@@ -456,8 +654,15 @@
 
                 <!-- ── 8. Full Architecture ───────────────────────────────────────────────── -->
                 <section>
-                    <h2>Architecture</h2>
-                    <div style="margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:0; font-size:0.48em;">
+                    <h2>Demo</h2>
+                    <div style="text-align:center; margin: 10px 0 18px;">
+                        <a href="http://localhost:3000" target="_blank"
+                            style="display:inline-block; font-size:0.55em; font-family:var(--font-mono); padding:10px 28px; background:rgba(0,245,255,0.1); border:1.5px solid var(--cyan); border-radius:8px; color:var(--cyan); text-decoration:none; letter-spacing:0.04em;">
+                            ↗ localhost:3000
+                        </a>
+                    </div>
+
+                    <div style="margin-top:0; display:flex; flex-direction:column; align-items:center; gap:0; font-size:0.48em;">
 
                         <!-- User -->
                         <div style="border:1.5px solid var(--border); border-radius:8px; padding:10px 40px; background:var(--bg-card); color:var(--text); font-family:var(--font-mono); min-width:420px; text-align:center;">
@@ -517,12 +722,37 @@
                     </aside>
                 </section>
 
+                <!-- ── 9. Why Evals ───────────────────────────────────────────────────────── -->
+                <section>
+                    <h2>Why you should eval</h2>
+                    <div style="display:flex; gap:28px; align-items:center; margin-top:16px;">
+                        <img src="assets/WhyYouShouldEval.jpeg" alt="Chipotle's support bot explaining how to reverse a linked list"
+                            style="height:480px; border-radius:12px; border:1px solid var(--border); flex-shrink:0;" />
+                        <div style="font-size:0.5em; color:var(--text-muted); line-height:2;">
+                            <p style="color:var(--text); font-size:1.1em; margin-bottom:16px;">Without evals, your agent will confidently do the wrong thing.</p>
+                            <ul style="padding-left:1em; line-height:2.2;">
+                                <li>Chipotle's bot is <em>helpful</em> — just not for burritos</li>
+                                <li>Your commerce agent will hallucinate prices, skip checkout steps, or call the wrong tools</li>
+                                <li>You won't know until a customer does</li>
+                            </ul>
+                            <p style="margin-top:20px; color:var(--cyan);">Evals are how you know it works <em>before</em> it's live.</p>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        [15:00] Before I show the eval suite — why does this matter?
+                        Without evals, you have no signal. Your agent will hallucinate,
+                        skip steps, call the wrong tools. You'll find out at the worst moment.
+                        Chipotle's bot is technically helpful — it explained linked list reversal perfectly.
+                        But that's not what it was built for. Evals catch this.
+                    </aside>
+                </section>
+
                 <!-- ── 9. Evals ───────────────────────────────────────────────────────────── -->
                 <section
                     style="display:flex; flex-direction:column; height:100%;">
                     <h2 style="flex-shrink:0;">How do you test this?</h2>
                     <div class="eval-grid"
-                        style="flex:1; margin-top:12px; grid-template-rows:1fr 1fr; align-content:stretch; grid-auto-rows:1fr; height:580px;">
+                        style="flex:1; margin-top:8px; grid-template-rows:1fr 1fr; align-content:stretch; grid-auto-rows:1fr; max-height:520px;">
                         <div class="eval-card"
                             style="display:flex; flex-direction:column;">
                             <h4>Behavior evals</h4>
@@ -579,36 +809,6 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
                         Behavior evals are your integration tests. Protocol
                         compliance are your contract tests. Latency and quality
                         are observability. Run these in CI before every demo.
-                    </aside>
-                </section>
-
-                <!-- ── 10. Live Demo ───────────────────────────────────────────────────────── -->
-                <section>
-                    <h2>Live: the full stack</h2>
-                    <ul class="step-list">
-                        <li><span class="step-num">1</span>
-                            <strong>Feeds tab</strong> — same product, three
-                            wire formats: ACP (ChatGPT) · UCP (Google) · Meta.
-                            One source of truth.</li>
-                        <li><span class="step-num">2</span>
-                            <strong>"show me cookies"</strong> — customer agent
-                            → merchant agent (A2A) → MCP tools · ⚡ Timeline
-                            traces every hop</li>
-                        <li><span class="step-num">3</span>
-                            <strong>"add Kitten Mittons to cart"</strong> —
-                            A2A · UCP · ACP inspector tabs light up</li>
-                        <li><span class="step-num">4</span>
-                            <strong>Checkout</strong> — Payment tab decodes the
-                            AP2 token</li>
-                        <li><span class="step-num">5</span>
-                            <strong>Evals</strong> — behavior · compliance ·
-                            latency · quality scorecards</li>
-                    </ul>
-                    <aside class="notes">
-                        [17:00] 3 minutes of live demo. Prioritize: Timeline tab
-                        (real-time WS trace), the feed viewer showing all three
-                        format variants, and the AP2 token. If anything breaks,
-                        show the eval output instead — it tells the same story.
                     </aside>
                 </section>
 
@@ -707,6 +907,8 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
             </div>
         </div>
 
+        <button id="theme-toggle" title="Toggle light/dark mode">&#9728;&#65039;</button>
+
         <script
             src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
         <script
@@ -728,6 +930,21 @@ a2a:get_bestsellers 1.2s  2.1s   2.8s</code></pre>
     margin: 0.04,
     plugins: [RevealNotes, RevealHighlight],
   });
+
+  // Theme toggle
+  (function () {
+    const btn = document.getElementById('theme-toggle');
+    const saved = localStorage.getItem('slides-theme');
+    if (saved === 'light') {
+      document.body.classList.add('light-mode');
+      btn.textContent = '\uD83C\uDF19';
+    }
+    btn.addEventListener('click', function () {
+      const isLight = document.body.classList.toggle('light-mode');
+      btn.textContent = isLight ? '\uD83C\uDF19' : '\u2600\uFE0F';
+      localStorage.setItem('slides-theme', isLight ? 'light' : 'dark');
+    });
+  })();
 </script>
     </body>
 </html>
