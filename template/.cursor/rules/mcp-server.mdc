@@ -1,0 +1,298 @@
+---
+description: Product feed and mapper guidance for MCP server work
+globs: mcp-server/**
+alwaysApply: false
+---
+
+# Setting Up Your Product Feed
+
+This guide covers two things:
+1. Defining your internal product catalog in `mcp-server/main.py`
+2. Understanding what each external platform actually needs so you can write a mapper that converts your catalog into their format
+
+---
+
+## Step 1: Understand your own product data
+
+Before mapping to any external format, write down what you actually have. Every mapper starts from the same internal shape. The template uses a simple Python dict; yours might come from a database, a CSV, or an existing API.
+
+**Audit your data against these questions:**
+
+| Question | Why it matters |
+|---|---|
+| Do you have a unique, stable ID per SKU? | All three platforms use it to match updates |
+| Is your price stored as dollars (float) or cents (int)? | ACP API uses cents; everything else uses dollar strings |
+| Do you have variants (size/color)? | Each platform groups variants differently |
+| Do you have a product page URL and image URL? | Required by all three platforms |
+| Do you have a `brand` field? | Required by Google and ACP |
+| What condition? (new / refurbished / used) | Required by Meta; optional for others |
+| Do you track availability? | All three require `in_stock` or `out_of_stock` |
+
+**Internal catalog shape in `mcp-server/main.py`:**
+
+```python
+PRODUCTS = [
+    {
+        "id": "sku-001",               # stable, unique — use your real SKU
+        "name": "Classic Tee",
+        "description": "100% cotton unisex tee. Machine wash cold.",
+        "price": 29.99,                # float dollars
+        "stock": 50,                   # internal only — never expose to customer
+        "brand": "Your Brand",
+        "condition": "new",
+        "category": "Apparel & Accessories > Clothing",
+        "tags": ["tee", "basics"],
+        "bestseller": True,
+        "image_url": "https://example.com/images/sku-001.jpg",
+        "url": "https://example.com/products/sku-001",
+    },
+]
+```
+
+**Required internal fields** — agent uses these:
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | Used as the product ID in checkout — must be stable |
+| `name` | string | Display name |
+| `price` | float | USD dollars |
+| `stock` | int | Internal inventory — never expose in agent responses |
+| `description` | string | Used in search results |
+
+**Strongly recommended** for external feed mapping:
+
+| Field | Why |
+|---|---|
+| `brand` | Required by Google and ACP |
+| `condition` | Required by Meta |
+| `category` | Google product taxonomy path improves ranking |
+| `image_url` | Required by all three platforms |
+| `url` | Required by all three platforms |
+
+---
+
+## Step 2: Define discount codes and store policy
+
+```python
+DISCOUNT_CODES = {
+    "SAVE10": 0.10,   # 10% off
+    "WELCOME": 0.15,  # 15% off
+    "VIP20": 0.20,    # 20% off
+}
+
+STORE_POLICY = """
+Returns: 30-day returns on all items in original condition.
+Shipping: Free shipping on orders over $50. Standard delivery 5-7 business days.
+Payments: Visa, Mastercard, Apple Pay, Google Pay.
+"""
+```
+---
+
+## Step 3: Write a mapper for each platform you want to support
+
+Once your internal data is clean, the mapper is just a function that transforms one dict shape into another. Build one mapper per platform.
+
+### ACP — ChatGPT / OpenAI
+
+Spec: [developers.openai.com/commerce/specs/file-upload/products](https://developers.openai.com/commerce/specs/file-upload/products)  
+Submit: [chatgpt.com/merchants](https://chatgpt.com/merchants) (approved partners)
+
+**Required fields** (file upload format):
+
+| Your field | ACP field | Format |
+|---|---|---|
+| `id` | `item_id` | alphanumeric string |
+| `name` | `title` | string, max 150 chars |
+| `description` | `description` | string |
+| `url` | `url` | full URL |
+| `image_url` | `image_url` | full URL |
+| `brand` | `brand` | string |
+| `price` | `price` | `"29.99 USD"` (dollar string + ISO 4217 code) |
+| `stock > 0` | `availability` | `in_stock` / `out_of_stock` / `preorder` |
+| — | `is_eligible_search` | `true` to appear in ChatGPT search |
+| — | `is_eligible_checkout` | `true` to enable direct purchase |
+| — | `seller_name` | your store name |
+| — | `seller_url` | your store URL |
+| — | `return_policy` | URL to your returns page |
+| — | `target_countries` | e.g. `["US"]` |
+| — | `store_country` | e.g. `"US"` |
+
+> **Price format**: file upload uses `"29.99 USD"` (human-readable string).  
+> The ACP API (PATCH endpoint) uses minor units: `{"amount": 2999, "currency": "USD"}`.  
+> These are two different integration paths — don't mix the formats.
+
+**Mapper example:**
+
+```python
+def to_acp(product: dict) -> dict:
+    availability = "in_stock" if product["stock"] > 0 else "out_of_stock"
+    return {
+        "item_id":             product["id"],
+        "title":               product["name"],
+        "description":         product["description"],
+        "url":                 product["url"],
+        "image_url":           product["image_url"],
+        "brand":               product["brand"],
+        "price":               f"{product['price']:.2f} USD",
+        "availability":        availability,
+        "seller_name":         "Your Store",
+        "seller_url":          "https://example.com",
+        "return_policy":       "https://example.com/returns",
+        "target_countries":    ["US"],
+        "store_country":       "US",
+        "is_eligible_search":  True,
+        "is_eligible_checkout": True,
+    }
+```
+
+**Variants**: use `group_id` (shared across variants) + `variant_dict` (e.g. `{"color": "Blue", "size": "M"}`). Each variant is its own row with a unique `item_id`.
+
+---
+
+### Google Merchant Center — Google Shopping + UCP / Gemini
+
+Spec: [support.google.com/merchants/answer/7052112](https://support.google.com/merchants/answer/7052112)  
+UCP checkout: [developers.google.com/merchant/ucp/guides/checkout/native](https://developers.google.com/merchant/ucp/guides/checkout/native)  
+Submit: Google Merchant Center → Products → Feeds
+
+**Required fields** (applies to all products):
+
+| Your field | GMC field | Format |
+|---|---|---|
+| `id` | `id` | string, max 50 chars |
+| `name` | `title` | string, max 150 chars |
+| `description` | `description` | string, max 5000 chars |
+| `url` | `link` | full URL |
+| `image_url` | `image_link` | full URL |
+| `price` | `price` | `"29.99 USD"` (number + space + ISO 4217) |
+| `stock > 0` | `availability` | `in_stock` / `out_of_stock` / `preorder` / `backorder` |
+| `brand` | `brand` | string, max 70 chars (required for most categories) |
+| `condition` | `condition` | `new` / `refurbished` / `used` |
+
+> **Price format**: `"29.99 USD"` — number, space, 3-letter ISO 4217 code. Use `.` not `,` as decimal.  
+> Do **not** include tax in the price for US/Canada.
+
+**For UCP native checkout**, the product feed submission is just step one. You also need to:
+1. Publish a UCP profile at `/.well-known/ucp` on your agent (the template already does this)
+2. Implement the checkout REST API: `POST /checkout-sessions`, `PUT /checkout-sessions/{id}`, `POST /checkout-sessions/{id}/complete`
+3. Connect your Merchant Center account to UCP via account settings
+
+**Mapper example:**
+
+```python
+def to_google_merchant(product: dict) -> dict:
+    availability = "in_stock" if product["stock"] > 0 else "out_of_stock"
+    return {
+        "id":           product["id"],
+        "title":        product["name"],
+        "description":  product["description"],
+        "link":         product["url"],
+        "image_link":   product["image_url"],
+        "price":        f"{product['price']:.2f} USD",
+        "availability": availability,
+        "brand":        product["brand"],
+        "condition":    product.get("condition", "new"),
+        "google_product_category": product.get("category", ""),
+    }
+```
+
+**Variants**: use `item_group_id` (shared) + individual `size`, `color`, `material` fields per variant.
+
+---
+
+### Meta — Facebook / Instagram Shops
+
+Spec: [facebook.com/business/help/120325381656392](https://www.facebook.com/business/help/120325381656392)  
+Submit: Meta Commerce Manager → Catalogs → Data feeds
+
+**Required fields** (physical products):
+
+| Your field | Meta field | Format |
+|---|---|---|
+| `id` | `id` | string, max 100 chars |
+| `name` | `title` | string, max 200 chars (recommended < 65) |
+| `description` | `description` | plain text, max 9999 chars |
+| `stock > 0` | `availability` | `in stock` / `out of stock` (note: two words, no underscore) |
+| `condition` | `condition` | `new` / `refurbished` / `used` |
+| `price` | `price` | `"9.99 USD"` (number + space + ISO 4217) |
+| `url` | `link` | full URL |
+| `image_url` | `image_link` | JPEG or PNG, ≥ 500×500px, < 8 MB |
+| `brand` | `brand` | string, max 100 chars |
+
+> **Availability values**: Meta uses `"in stock"` and `"out of stock"` (two words, no underscore).  
+> Google and ACP use `"in_stock"` (underscore). Don't reuse the same string across mappers.
+
+> **Price format**: `"9.99 USD"` — same pattern as Google. No currency symbols ($, €, £).
+
+**Mapper example:**
+
+```python
+def to_meta(product: dict) -> dict:
+    # Meta uses "in stock" (two words), not "in_stock"
+    availability = "in stock" if product["stock"] > 0 else "out of stock"
+    return {
+        "id":           product["id"],
+        "title":        product["name"],
+        "description":  product["description"],
+        "availability": availability,
+        "condition":    product.get("condition", "new"),
+        "price":        f"{product['price']:.2f} USD",
+        "link":         product["url"],
+        "image_link":   product["image_url"],
+        "brand":        product["brand"],
+    }
+```
+
+**Variants**: use `item_group_id` (shared across variants) + `size`, `color`, `material`, `gender`, `age_group` per variant.  
+File formats: CSV, TSV, XLSX, XML — file size limit 100 MB (or 4 GB for scheduled feeds).
+
+---
+
+## Step 4: Wire the mappers together
+
+A minimal sync script that reads your `PRODUCTS` list and outputs all three formats:
+
+```python
+import json
+import sys
+sys.path.insert(0, "mcp-server")
+from main import PRODUCTS
+
+def to_acp(p):   ...  # mapper from above
+def to_google(p): ... # mapper from above
+def to_meta(p):  ...  # mapper from above
+
+acp_feed    = [to_acp(p)    for p in PRODUCTS]
+google_feed = [to_google(p) for p in PRODUCTS]
+meta_feed   = [to_meta(p)   for p in PRODUCTS]
+
+print("ACP rows:", len(acp_feed))
+print("Google rows:", len(google_feed))
+print("Meta rows:", len(meta_feed))
+
+# Write to files for manual upload, or POST to each platform's API
+with open("feeds/acp.jsonl",    "w") as f: f.write("\n".join(json.dumps(r) for r in acp_feed))
+with open("feeds/google.jsonl", "w") as f: f.write("\n".join(json.dumps(r) for r in google_feed))
+with open("feeds/meta.tsv",     "w") as f:
+    headers = list(meta_feed[0].keys())
+    f.write("\t".join(headers) + "\n")
+    for row in meta_feed:
+        f.write("\t".join(str(row.get(h, "")) for h in headers) + "\n")
+```
+
+---
+
+## Quick comparison: what differs across platforms
+
+| Attribute | ACP (file upload) | Google Merchant Center | Meta |
+|---|---|---|---|
+| ID field name | `item_id` | `id` | `id` |
+| Title field name | `title` | `title` | `title` |
+| Image field name | `image_url` | `image_link` | `image_link` |
+| Product URL field | `url` | `link` | `link` |
+| Price format | `"29.99 USD"` | `"29.99 USD"` | `"29.99 USD"` |
+| In-stock value | `in_stock` | `in_stock` | `in stock` |
+| Variant group field | `group_id` | `item_group_id` | `item_group_id` |
+| Condition required? | optional | required if used/refurbished | always required |
+| Brand required? | yes | yes (most categories) | yes |
+| Checkout enablement | `is_eligible_checkout: true` | UCP profile + checkout API | Meta Commerce Manager |
